@@ -1,8 +1,8 @@
 {
     "name": "@rtsoft/rtjs",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "main": "rtjs.js",
     "description": "Handy everyday library",
     "license": "MIT",
-    "repository": "rtsoft/rtjs"
+    "repository": "rtsoftplzen/rtjs"
 }
