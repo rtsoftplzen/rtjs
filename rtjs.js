@@ -16,13 +16,14 @@ function InitRTJS() {
             if(!this._eventsListeners[eventName].length){
                 document.body.addEventListener(eventName, (event) => {
                     this._eventsListeners[eventName].forEach(eventListener => {
-                        if (isElementInCollection(eventListener.elements, event.target)){
+                        if (isElementInCollection(document.body.querySelectorAll(eventListener.selector), event.target)){
                             eventListener.eventCallback(event)
                         }
                     })
                 })
             }
-            this._eventsListeners[eventName].push({selector, elements: document.body.querySelectorAll(selector), eventCallback})
+            this._eventsListeners[eventName].push({selector, eventCallback})
+
         },
 
         // actions witch nodes list
