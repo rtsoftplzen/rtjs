@@ -1,12 +1,30 @@
-"use strict";
+'use strict'
 
-import { elementsIterator } from "./helpers/common";
+import { elementsIterator, isElementInCollection } from './helpers/common'
+import './helpers/polyfills'
 
 let RTJS = {}
 
 function InitRTJS() {
 
     RTJS = {
+
+        // events
+
+        _eventsListeners: {click:[]},
+
+        onEvent: function(eventName, selector, eventCallback) {
+            if(!this._eventsListeners[eventName].length){
+                document.body.addEventListener(eventName, (event) => {
+                    this._eventsListeners[eventName].forEach(eventListener => {
+                        if (isElementInCollection(eventListener.elements, event.target)){
+                            eventListener.eventCallback(event)
+                        }
+                    })
+                })
+            }
+            this._eventsListeners[eventName].push({selector, elements: document.body.querySelectorAll(selector), eventCallback})
+        },
 
         // test injection 
 
@@ -22,36 +40,62 @@ function InitRTJS() {
 
                 // returned (by query selector) elements collection 
 
-                elements: document.body.querySelectorAll(selector),
+                _elements: document.body.querySelectorAll(selector),
+
+                // closest parent
+
+                closest: function (closestSelector) {
+                    const newElements = []
+                    elementsIterator.call(this, (element) => {
+                        const closestEl = element.closest(closestSelector)
+                        closestEl ? newElements.push(closestEl) : null
+                    })
+                    this._elements = newElements
+                    return this
+                },
 
                 // each iterator
 
-                each: function(elementCallback) {
+                each: function (elementCallback) {
                     return elementsIterator.call(this, elementCallback)
                 },
 
                 // classList modifications
 
-                addClass: function(className) {
+                addClass: function (className) {
                     return elementsIterator.call(this, (element) => {
                         element.classList.add(className)
                     })
                 },
-                removeClass: function(className) {
+                removeClass: function (className) {
                     return elementsIterator.call(this, (element) => {
                         element.classList.remove(className)
                     })
                 },
-                toggleClass: function(className) {
+                toggleClass: function (className) {
                     return elementsIterator.call(this, (element) => {
                         element.classList.toggle(className)
                     })
                 },
 
+                // visibility
+
+                toggle: function (toggle) {
+                    return elementsIterator.call(this, (element) => {
+                        if (toggle === true) {
+                            element.style.display === 'none' ? element.style.removeProperty('display') : null
+                        } else if (toggle === false) {
+                            element.style.display = 'none'
+                        } else {
+                            element.style.display === 'none' ? element.style.removeProperty('display') : element.style.display = 'none'
+                        }
+                    })
+                },
+
                 // attributes
 
-                attr: function(name, value){
-                    if (value === null || value === undefined){
+                attr: function (name, value) {
+                    if (value === null || value === undefined) {
                         return elementsIterator.call(this, (element) => {
                             return element.getAttribute(name)
                         }, 'callback')
@@ -60,9 +104,21 @@ function InitRTJS() {
                             element.setAttribute(name, value)
                         })
                     }
-                }
+                },
 
+                // html content
+
+                html: function (content) {
+                    return elementsIterator.call(this, (element) => {
+                        if (content) {
+                            element.innerHTML = content
+                        } else {
+                            return element.innerHTML
+                        }
+                    }, content ? undefined : 'callback')
+                },
             }
+
             return queryContext
         }
 
@@ -71,7 +127,7 @@ function InitRTJS() {
 
 }
 
-export default (function() {
+export default (function () {
     InitRTJS()
     return RTJS
 })()
