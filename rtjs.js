@@ -2,9 +2,11 @@
 
 import { elementsIterator } from "./helpers/common";
 
-(function (namespace) {
+let RTJS = {}
 
-    window[namespace] = {
+function InitRTJS() {
+
+    RTJS = {
 
         // test injection 
 
@@ -17,6 +19,9 @@ import { elementsIterator } from "./helpers/common";
         query: function (selector) {
 
             const queryContext = {
+
+                // returned (by query selector) elements collection 
+
                 elements: document.body.querySelectorAll(selector),
 
                 // each iterator
@@ -31,24 +36,42 @@ import { elementsIterator } from "./helpers/common";
                     return elementsIterator.call(this, (element) => {
                         element.classList.add(className)
                     })
-                    // return queryContext
                 },
                 removeClass: function(className) {
                     return elementsIterator.call(this, (element) => {
                         element.classList.remove(className)
                     })
-                    // return queryContext
                 },
                 toggleClass: function(className) {
                     return elementsIterator.call(this, (element) => {
                         element.classList.toggle(className)
                     })
-                    // return queryContext
+                },
+
+                // attributes
+
+                attr: function(name, value){
+                    if (value === null || value === undefined){
+                        return elementsIterator.call(this, (element) => {
+                            return element.getAttribute(name)
+                        }, 'callback')
+                    } else {
+                        return elementsIterator.call(this, (element) => {
+                            element.setAttribute(name, value)
+                        })
+                    }
                 }
+
             }
             return queryContext
-
         }
+
+        // future (XHR, ...) ?
     }
 
-})('RTJS')
+}
+
+export default (function() {
+    InitRTJS()
+    return RTJS
+})()

@@ -1,2 +1,2 @@
 # rtjs
-Handy everyday library
+Handy everyday library (jQuery-like). More to come.
