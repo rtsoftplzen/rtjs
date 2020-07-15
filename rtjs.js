@@ -1,7 +1,6 @@
 'use strict'
-
-import { elementsIterator, isElementInCollection } from './helpers/common'
 import './helpers/polyfills'
+import { elementsIterator, isElementInCollection } from './helpers/common'
 
 let RTJS = {}
 
@@ -24,12 +23,6 @@ function InitRTJS() {
                 })
             }
             this._eventsListeners[eventName].push({selector, elements: document.body.querySelectorAll(selector), eventCallback})
-        },
-
-        // test injection 
-
-        test: () => {
-            console.log('RTJS injected...')
         },
 
         // actions witch nodes list
