@@ -2,27 +2,25 @@
 import './helpers/polyfills'
 import { elementsIterator, isElementInCollection } from './helpers/common'
 
-let RTJS = {}
+const InitRTJS = () => {
 
-function InitRTJS() {
-
-    RTJS = {
+    return {
 
         // events
 
-        _eventsListeners: {click:[]},
+        _eventsLiveListeners: { click: [] },
 
-        onEvent: function(eventName, selector, eventCallback) {
-            if(!this._eventsListeners[eventName].length){
+        onLiveEvent: function (eventName, selector, eventCallback) {
+            if (!this._eventsLiveListeners[eventName].length) {
                 document.body.addEventListener(eventName, (event) => {
-                    this._eventsListeners[eventName].forEach(eventListener => {
-                        if (isElementInCollection(document.body.querySelectorAll(eventListener.selector), event.target)){
+                    this._eventsLiveListeners[eventName].forEach(eventListener => {
+                        if (isElementInCollection(document.body.querySelectorAll(eventListener.selector), event.target)) {
                             eventListener.eventCallback(event)
                         }
                     })
                 })
             }
-            this._eventsListeners[eventName].push({selector, eventCallback})
+            this._eventsLiveListeners[eventName].push({ selector, eventCallback })
 
         },
 
@@ -121,7 +119,4 @@ function InitRTJS() {
 
 }
 
-export default (function () {
-    InitRTJS()
-    return RTJS
-})()
+window.RTJS = InitRTJS()
