@@ -156,4 +156,4 @@ const RTJS_lightbox = (selector) => {
 
 }
 
-window.RTJS_lightbox = RTJS_lightbox
+export default RTJS_lightbox

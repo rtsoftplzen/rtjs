@@ -1,7 +1,7 @@
 
 const path = require('path');
 
-const BUILD_DIR = path.resolve(__dirname, 'dist');
+const BUILD_DIR = path.resolve(__dirname, 'lib');
 const APP_DIR = path.resolve(__dirname, './');
 
 const config = {
@@ -12,7 +12,9 @@ const config = {
     },
     output: {
         path: BUILD_DIR,
-        filename: "[name].js"
+        filename: "[name].js",
+        globalObject: 'window',
+        libraryTarget: 'umd',
     },
     module: {
         rules: [
@@ -56,7 +58,7 @@ const config = {
     },
     externals: {
     },
-    devtool: 'source-map',
+    // devtool: 'source-map',
     watchOptions: {
         aggregateTimeout: 300,
         poll: 1000

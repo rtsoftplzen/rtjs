@@ -1,6 +1,7 @@
 'use strict'
 import './helpers/polyfills'
 import { elementsIterator, isElementInCollection } from './helpers/common'
+import lightbox from './extensions/lightbox/lightbox'
 
 const InitRTJS = () => {
 
@@ -119,4 +120,4 @@ const InitRTJS = () => {
 
 }
 
-window.RTJS = InitRTJS()
+export default (() => InitRTJS())()

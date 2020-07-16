@@ -3,7 +3,6 @@
     "version": "1.0.2",
     "description": "Handy everyday library",
     "license": "MIT",
-    "main": "./dist/RTJS.js",
     "repository": "rtsoftplzen/rtjs",
     "dependencies": {},
     "devDependencies": {
