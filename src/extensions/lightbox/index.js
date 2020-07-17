@@ -184,7 +184,6 @@ const RTJS_lightbox = (selector, options) => {
         })
     })
 
-
 }
 
 export default RTJS_lightbox

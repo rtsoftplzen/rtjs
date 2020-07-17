@@ -1,7 +1,9 @@
 'use strict'
-import './helpers/polyfills'
+import polyfills from './helpers/polyfills'
 import { elementsIterator, isElementInCollection } from './helpers/common'
 import lightbox from './extensions/lightbox'
+
+polyfills()
 
 const InitRTJS = () => {
 

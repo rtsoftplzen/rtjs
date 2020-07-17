@@ -5,10 +5,7 @@
     "license": "MIT",
     "main": "./lib/RTJS.js",
     "repository": "rtsoftplzen/rtjs",
-    "sideEffects": [
-        "./src/helpers/polyfills.js",
-        "*.scss"
-    ],
+    "sideEffects": false,
     "dependencies": {},
     "devDependencies": {
         "@babel/core": "^7.10.5",

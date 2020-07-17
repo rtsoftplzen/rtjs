@@ -28,7 +28,8 @@ const config = {
                     {
                         loader: 'sass-loader'
                     }
-                ]
+                ],
+                sideEffects: true
             },
             {
                 test: /\.(js|jsx)$/,
@@ -52,8 +53,6 @@ const config = {
             "react-dom": "preact/compat",
            // Must be below test-utils
           },
-    },
-    externals: {
     },
     devtool: 'source-map',
     watchOptions: {
