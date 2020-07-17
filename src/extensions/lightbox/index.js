@@ -13,6 +13,8 @@ const swipeTreshold = 20
 
 const RTJS_lightbox = (selector, options) => {
 
+    const finalOptions = {...defaultOptions, ...options}
+
     // lightbox react app
 
     const App = ({ element }) => {
@@ -25,12 +27,10 @@ const RTJS_lightbox = (selector, options) => {
         const [galleryItems, setGalleryItems] = useState(null)
         const [forcedLoading, setForcedLoading] = useState(false)
         const swipeOriginX = useRef(null)
-        const finalOptions = useRef(null)
 
         // lifecycle
 
         useEffect(() => {
-            finalOptions.current = {...defaultOptions, ...options}
             setVisible(true)
             const dataset = element.dataset 
             const gallery = dataset.rtLightboxGallery
@@ -100,7 +100,7 @@ const RTJS_lightbox = (selector, options) => {
             <Title key={`title-${selectedItem}`} showTitle={img} isItemLoaded={isLoaded && !forcedLoading} title={img.title} selectedItem={selectedItem} sum={galleryItems.length} />
             <Spinner showSpinner={!isLoaded || forcedLoading} />
             <Image
-                errorText={finalOptions.current.imageErrorLabel}
+                errorText={finalOptions.imageErrorLabel}
                 key={`image-${selectedItem}`}
                 showImage={img}
                 isItemLoaded={isLoaded && !forcedLoading}
@@ -162,9 +162,9 @@ const RTJS_lightbox = (selector, options) => {
                     }
                 }}
             />
-            <Thumbnails key={`thumbs-${selectedItem}`} onClick={(index) => setItemByIndex(index)} selectedItem={selectedItem} showThumbnails={finalOptions.current.showThumbnails && img && isMultiple} isItemLoaded={isLoaded && !forcedLoading} galleryItems={galleryItems} />
-            <Closer key={`closer-${selectedItem}`} showCloser={img} isItemLoaded={isLoaded && !forcedLoading} label={finalOptions.current.closeLabel} />
-            <Arrows key={`arrows-${selectedItem}`} showArrows={finalOptions.current.showArrows && isMultiple && img} isItemLoaded={isLoaded && !forcedLoading} moveNext={moveNext} movePrev={movePrev} />
+            <Thumbnails key={`thumbs-${selectedItem}`} onClick={(index) => setItemByIndex(index)} selectedItem={selectedItem} showThumbnails={finalOptions.showThumbnails && img && isMultiple} isItemLoaded={isLoaded && !forcedLoading} galleryItems={galleryItems} />
+            <Closer key={`closer-${selectedItem}`} showCloser={img} isItemLoaded={isLoaded && !forcedLoading} label={finalOptions.closeLabel} />
+            <Arrows key={`arrows-${selectedItem}`} showArrows={finalOptions.showArrows && isMultiple && img} isItemLoaded={isLoaded && !forcedLoading} moveNext={moveNext} movePrev={movePrev} />
         </div> : null
 
     }

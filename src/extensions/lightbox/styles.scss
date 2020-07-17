@@ -1,3 +1,5 @@
+$fontSize: 14px;
+
 .rt-lightbox {
     &, & * {
         font-family: Arial, Helvetica, sans-serif;
@@ -34,7 +36,7 @@
   right: 0;
   top: 0;
   bottom: 0;
-  background: rgba(#000, 0.8);
+  background: rgba(#000, 0.9);
   z-index: 999;
   display: flex;
   flex-direction: column;
@@ -110,18 +112,21 @@
     }
   }
   &__closer {
-    box-shadow: 0px 0px 20px #00000027;
+    // box-shadow: 0px 0px 20px #00000027;
     opacity: 0;
     max-width: 80%;
-    background: #fff;
+    color: #fff;
     display: flex;
     z-index: 9;
     position: relative;
     cursor: pointer;
-    padding: 10px 16px;
+    padding: 8px 16px;
+    // border-radius: 14px;
     text-align: center;
-    color: #616161;
-    font-size: 12px;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    font-size: $fontSize;
     align-items: center;
     justify-content: center;
     line-height: 1em;
@@ -129,21 +134,27 @@
     &--visible {
       transition: all 200ms linear;
       opacity: 1;
-      margin-top: 0;
+      margin-top: 0px;
     }
   }
   &__title {
-    box-shadow: 0px 0px 20px #00000027;
+    // box-shadow: 0px 0px 20px #00000027;
     opacity: 0;
     max-width: 80%;
-    background: #fff;
+    color: #fff;
+    // border-radius: 14px;
     display: flex;
     z-index: 9;
     position: relative;
-    padding: 10px 16px;
-    font-size: 12px;
+    padding: 8px 16px;
+    font-size: $fontSize;
     text-align: center;
-    color: #000;
+    strong{
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    // color: #000;
     align-items: center;
     justify-content: center;
     line-height: 1em;
@@ -151,7 +162,7 @@
     &--visible {
       transition: all 200ms linear;
       opacity: 1;
-      margin-bottom: 0;
+      margin-bottom: 0px;
     }
   }
   &__image-error {
@@ -193,9 +204,11 @@
       height: 50px;
       line-height: 50px;
       width: 30px;
+      border-radius: 14px;
       text-align:center;
-      background: rgba(white, 0.8);
-      color: #000;
+      // background: rgba(white, 0.8);
+      font-size: $fontSize * 2;
+      color: #fff;
       z-index: 9;
       opacity: 0;
       &--visible {
