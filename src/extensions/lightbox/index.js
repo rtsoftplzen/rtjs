@@ -22,6 +22,7 @@ const RTJS_lightbox = (selector, options) => {
         const [selectedItem, setSelectedItem] = useState(0)
         const [loadedImages, setLoadedImages] = useState([])
         const [galleryItems, setGalleryItems] = useState(null)
+        const [forcedLoading, setForcedLoading] = useState(false)
         const swipeOriginX = useRef(null)
         const finalOptions = useRef(null)
 
@@ -60,43 +61,54 @@ const RTJS_lightbox = (selector, options) => {
             if(wrapper && wrapper.classList.contains('rt-lightbox--swiping')){
                 wrapper.classList.remove('rt-lightbox--swiping')
             }
-        }, [selectedItem])
+            if(forcedLoading && loadedImages && galleryItems && loadedImages.includes(galleryItems[selectedItem].bigSrc)){
+                // setTimeout(() => {
+                    setForcedLoading(false)
+                // }, 1250)            
+            }
+        }, [selectedItem, loadedImages, galleryItems, forcedLoading])
 
         // helpers
 
-        const movePrev = () => {
-            setSelectedItem(selectedItem ? selectedItem - 1 : galleryItems.length - 1)
+        const movePrev = (delayed = false) => {
+            setForcedLoading(true)
+            setSelectedItem(selectedItem ? selectedItem - 1 : galleryItems.length - 1)   
         }
 
-        const moveNext = () => {
+        const moveNext = (delayed = false) => {
+            setForcedLoading(true)
             setSelectedItem(galleryItems.length === selectedItem + 1 ? 0 : selectedItem + 1)
         }
 
         // output
 
         const img = galleryItems ? galleryItems[selectedItem] : undefined
-        const isLoaded = img ? loadedImages.includes(img.bigSrc) : undefined
+        const isLoaded = img && loadedImages ? loadedImages.includes(img.bigSrc) : undefined
         const isMultiple = galleryItems ? galleryItems.length > 1 : undefined
+
+        // console.log(forcedLoading)
 
         // console.log(galleryItems, img, isLoaded)
 
-        return visible ? <div className='rt-lightbox' onClick={(event) => {
+        return visible ? <div className={`rt-lightbox`} onClick={(event) => {
             if (event.target.classList.contains('rt-lightbox') || event.target.classList.contains('rt-lightbox__closer')) {
                 setVisible(false)
             }
         }}>
-            <Title showTitle={img} isItemLoaded={isLoaded} title={img.title} selectedItem={selectedItem} sum={galleryItems.length} />
-            <Spinner showSpinner={!isLoaded} />
+            <Title showTitle={img && !forcedLoading} isItemLoaded={isLoaded} title={img.title} selectedItem={selectedItem} sum={galleryItems.length} />
+            <Spinner showSpinner={!isLoaded || forcedLoading} />
             <Image
+                errorText={finalOptions.current.imageErrorLabel}
+                key={`image-${selectedItem}`}
                 showImage={img}
-                isItemLoaded={isLoaded}
+                isItemLoaded={isLoaded && !forcedLoading}
                 selectedItem={selectedItem}
                 src={img.bigSrc} 
                 onLoad={() => {
                     if(!isLoaded){
                         setTimeout(() => {
                             setLoadedImages([...loadedImages, img.bigSrc])
-                        }, 500)
+                        }, 200)
                     }
                 }}
                 onMouseDown={!isMultiple ? undefined : (event) => {
@@ -105,7 +117,7 @@ const RTJS_lightbox = (selector, options) => {
                         swipeOriginX.current = event.clientX
                     }
                 }} 
-                onTouchstart={!isMultiple ? undefined : (event) => {
+                onTouchStart={!isMultiple ? undefined : (event) => {
                     event.preventDefault()
                     swipeOriginX.current = event.changedTouches[0].clientX
                 }} 
@@ -113,7 +125,7 @@ const RTJS_lightbox = (selector, options) => {
                     event.preventDefault()
                     if(!swipeOriginX.current) return
                     if (swipeOriginX.current > event.clientX){
-                        moveNext() 
+                        moveNext()
                     } else if (swipeOriginX.current < event.clientX) {
                         movePrev() 
                     }
@@ -130,6 +142,7 @@ const RTJS_lightbox = (selector, options) => {
                 }}
                 onTouchEnd={!isMultiple ? undefined : (event) => {
                     event.preventDefault()
+                    if(!swipeOriginX.current) return
                     if (swipeOriginX.current > event.changedTouches[0].clientX){
                         moveNext() 
                     } else if (swipeOriginX.current < event.changedTouches[0].clientX) {
@@ -147,8 +160,8 @@ const RTJS_lightbox = (selector, options) => {
                     }
                 }}
             />
-            <Closer showCloser={img} selectedItem={selectedItem} isItemLoaded={isLoaded} label={finalOptions.current.closeLabel} />
-            <Arrows showArrows={finalOptions.current.showArrows && isMultiple && img} selectedItem={selectedItem} isItemLoaded={isLoaded} moveNext={moveNext} movePrev={movePrev} />
+            <Closer showCloser={img && !forcedLoading} isItemLoaded={isLoaded} label={finalOptions.current.closeLabel} />
+            <Arrows showArrows={finalOptions.current.showArrows && isMultiple && img && !forcedLoading} isItemLoaded={isLoaded} moveNext={moveNext} movePrev={movePrev} />
         </div> : null
 
     }
