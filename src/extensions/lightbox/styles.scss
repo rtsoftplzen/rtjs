@@ -70,9 +70,10 @@
     z-index: 9;
     position: relative;
     cursor: pointer;
-    padding: 8px 16px;
+    padding: 10px 16px;
     text-align: center;
-    color: #000;
+    color: #616161;
+    font-size: 12px;
     align-items: center;
     justify-content: center;
     line-height: 1em;
@@ -91,7 +92,8 @@
     display: flex;
     z-index: 9;
     position: relative;
-    padding: 8px 16px;
+    padding: 10px 16px;
+    font-size: 12px;
     text-align: center;
     color: #000;
     align-items: center;
@@ -111,6 +113,8 @@
     opacity: 0;
     max-width: 80%;
     max-height: 80%;
+    min-height: 200px;
+    min-width: 200px;
     margin-top: -100px;
     border: 10px solid #fff;
     transition: all 200ms linear;

@@ -6,13 +6,10 @@ const APP_DIR = path.resolve(__dirname, './');
 
 const config = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    entry: {
-        core: [APP_DIR + '/core.js'],
-        lightbox: [APP_DIR + '/extensions/lightbox/lightbox.js'],
-    },
+    entry: APP_DIR + '/src/core.js',
     output: {
         path: BUILD_DIR,
-        filename: "[name].js",
+        filename: "RTJS.js",
         globalObject: 'window',
         libraryTarget: 'umd',
     },
