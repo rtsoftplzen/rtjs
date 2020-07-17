@@ -16,7 +16,7 @@ const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onMouseDown
 			onTouchEnd={onTouchEnd}
 			onTouchMove={onTouchMove}
 			onError={(error) => {
-				console.log(error)
+				// console.log(error)
 				setError(error)
 				onLoad()
 			}}
@@ -29,7 +29,7 @@ const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onMouseDown
 			onTouchMove={onTouchMove}
 			className='rt-lightbox__image-error'
 		>
-			[{src}]<br/><br/>
+			[url: "{src}"]<br/><br/>
 			{errorText || '...'}
 		</span> : null
 }

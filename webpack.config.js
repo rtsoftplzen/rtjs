@@ -55,7 +55,7 @@ const config = {
     },
     externals: {
     },
-    // devtool: 'source-map',
+    devtool: 'source-map',
     watchOptions: {
         aggregateTimeout: 300,
         poll: 1000

@@ -26,6 +26,7 @@
         "webpack-cli": "^3.3.12"
     },
     "scripts": {
-        "dev": "webpack --mode production --optimize-minimize --watch"
+        "dev": "webpack --mode development --watch",
+        "build": "webpack --mode production --optimize-minimize"
     }
 }

@@ -6,6 +6,7 @@ import Closer from './closer'
 import Image from './image'
 import Spinner from './spinner'
 import Title from './title'
+import Thumbnails from './thumbnails'
 import './styles.scss'
 
 const swipeTreshold = 20
@@ -34,6 +35,7 @@ const RTJS_lightbox = (selector, options) => {
             const dataset = element.dataset 
             const gallery = dataset.rtLightboxGallery
             const bigSrc = element.getAttribute('href')  || dataset.rtLightboxSrc
+            const smallSrc = element.querySelector('img') ? element.querySelector('img').getAttribute('src') : dataset.rtLightboxThumbnailSrc
             const title = element.getAttribute('title') || dataset.rtLightboxTitle
             if(gallery){
                 const galleryElements = document.body.querySelectorAll('[data-rt-lightbox-gallery="' + gallery + '"]')
@@ -45,14 +47,15 @@ const RTJS_lightbox = (selector, options) => {
                         }
                         const bigSrc = item.getAttribute('href') || item.dataset.rtLightboxSrc
                         const title = item.getAttribute('title') || item.dataset.rtLightboxTitle
-                        newGalleryItems.push({bigSrc, title})
+                        const smallSrc = item.querySelector('img') ? item.querySelector('img').getAttribute('src') : item.dataset.rtLightboxThumbnailSrc
+                        newGalleryItems.push({bigSrc, title, smallSrc})
                     })
                     setGalleryItems(newGalleryItems)
                 } else {
-                    setGalleryItems([{bigSrc, title}]) 
+                    setGalleryItems([{bigSrc, title, smallSrc}]) 
                 }
             } else {
-                setGalleryItems([{bigSrc, title}])
+                setGalleryItems([{bigSrc, title, smallSrc}])
             }
         }, [])
 
@@ -62,9 +65,7 @@ const RTJS_lightbox = (selector, options) => {
                 wrapper.classList.remove('rt-lightbox--swiping')
             }
             if(forcedLoading && loadedImages && galleryItems && loadedImages.includes(galleryItems[selectedItem].bigSrc)){
-                // setTimeout(() => {
-                    setForcedLoading(false)
-                // }, 1250)            
+                setForcedLoading(false)
             }
         }, [selectedItem, loadedImages, galleryItems, forcedLoading])
 
@@ -80,22 +81,23 @@ const RTJS_lightbox = (selector, options) => {
             setSelectedItem(galleryItems.length === selectedItem + 1 ? 0 : selectedItem + 1)
         }
 
+        const setItemByIndex = (index) => {
+            setForcedLoading(true)
+            setSelectedItem(index)
+        }
+
         // output
 
         const img = galleryItems ? galleryItems[selectedItem] : undefined
         const isLoaded = img && loadedImages ? loadedImages.includes(img.bigSrc) : undefined
         const isMultiple = galleryItems ? galleryItems.length > 1 : undefined
 
-        // console.log(forcedLoading)
-
-        // console.log(galleryItems, img, isLoaded)
-
         return visible ? <div className={`rt-lightbox`} onClick={(event) => {
             if (event.target.classList.contains('rt-lightbox') || event.target.classList.contains('rt-lightbox__closer')) {
                 setVisible(false)
             }
         }}>
-            <Title showTitle={img && !forcedLoading} isItemLoaded={isLoaded} title={img.title} selectedItem={selectedItem} sum={galleryItems.length} />
+            <Title key={`title-${selectedItem}`} showTitle={img} isItemLoaded={isLoaded && !forcedLoading} title={img.title} selectedItem={selectedItem} sum={galleryItems.length} />
             <Spinner showSpinner={!isLoaded || forcedLoading} />
             <Image
                 errorText={finalOptions.current.imageErrorLabel}
@@ -160,8 +162,9 @@ const RTJS_lightbox = (selector, options) => {
                     }
                 }}
             />
-            <Closer showCloser={img && !forcedLoading} isItemLoaded={isLoaded} label={finalOptions.current.closeLabel} />
-            <Arrows showArrows={finalOptions.current.showArrows && isMultiple && img && !forcedLoading} isItemLoaded={isLoaded} moveNext={moveNext} movePrev={movePrev} />
+            <Thumbnails key={`thumbs-${selectedItem}`} onClick={(index) => setItemByIndex(index)} selectedItem={selectedItem} showThumbnails={finalOptions.current.showThumbnails && img && isMultiple} isItemLoaded={isLoaded && !forcedLoading} galleryItems={galleryItems} />
+            <Closer key={`closer-${selectedItem}`} showCloser={img} isItemLoaded={isLoaded && !forcedLoading} label={finalOptions.current.closeLabel} />
+            <Arrows key={`arrows-${selectedItem}`} showArrows={finalOptions.current.showArrows && isMultiple && img} isItemLoaded={isLoaded && !forcedLoading} moveNext={moveNext} movePrev={movePrev} />
         </div> : null
 
     }
