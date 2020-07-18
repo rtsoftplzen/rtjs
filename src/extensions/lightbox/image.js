@@ -1,10 +1,13 @@
 import React from 'react'
 
-const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onError, onMouseDown, onTouchStart, onMouseUp, onMouseMove, onTouchEnd, onTouchMove, errorText }) => {
+const Image = ({ showImage, selectedItem, isItemLoaded, src, swiping, onLoad, onError, onMouseDown, onTouchStart, onMouseUp, onMouseMove, onTouchEnd, onTouchMove, errorText }) => {
+
+	const extClass = `${isItemLoaded && !isItemLoaded.error ? ' rt-lightbox__image--visible' : ''}${swiping === 'left' ? ' rt-lightbox__image--swiping-left' : ''}${swiping === 'right' ? ' rt-lightbox__image--swiping-right' : ''}`
+	const extClassError = `${swiping === 'left' ? ' rt-lightbox__image-error--swiping-left' : ''}${swiping === 'right' ? ' rt-lightbox__image-error--swiping-right' : ''}`
 
 	return showImage ? (!isItemLoaded || !isItemLoaded.error ?
 		<img
-			className={`rt-lightbox__image${isItemLoaded && !isItemLoaded.error ? ' rt-lightbox__image--visible' : ''}`}
+			className={`rt-lightbox__image${extClass}`}
 			src={src}
 			onLoad={onLoad}
 			onMouseDown={onMouseDown}
@@ -21,7 +24,7 @@ const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onError, on
 			onMouseMove={onMouseMove}
 			onTouchEnd={onTouchEnd}
 			onTouchMove={onTouchMove}
-			className='rt-lightbox__image-error'
+			className={`rt-lightbox__image-error${extClassError}`}
 		>
 			[url: "{src}"]<br/><br/>
 			{errorText || '...'}

@@ -27,6 +27,7 @@ const RTJS_lightbox = (selector, options) => {
         const [loadedImages, setLoadedImages] = useState({})
         const [galleryItems, setGalleryItems] = useState(null)
         const [forcedLoading, setForcedLoading] = useState(false)
+        const [swiping, setSwiping] = useState(false)
         const swipeOriginX = useRef(null)
 
         // lifecycle
@@ -62,10 +63,6 @@ const RTJS_lightbox = (selector, options) => {
         }, [])
 
         useEffect(() => {
-            const wrapper = (document.getElementById('rt-lightbox-container').querySelector('.rt-lightbox'))
-            if(wrapper && wrapper.classList.contains('rt-lightbox--swiping')){
-                wrapper.classList.remove('rt-lightbox--swiping')
-            }
             if(forcedLoading && loadedImages && loadedImages['item-'+selectedItem]){
                 setForcedLoading(false)
             }
@@ -85,9 +82,10 @@ const RTJS_lightbox = (selector, options) => {
         // helpers
 
         const handleKeyPress = useCallback(debounce(100, (event) => {
-            if(event.keyCode === 37){
+            const isMultiple = galleryItems && galleryItems.length > 1
+            if(isMultiple && event.keyCode === 37){
                 movePrev()
-            } else if (event.keyCode === 39){
+            } else if (isMultiple && event.keyCode === 39){
                 moveNext()
             } else {
                 setVisible(false)
@@ -96,18 +94,24 @@ const RTJS_lightbox = (selector, options) => {
 
         const movePrev = () => {
             setForcedLoading(true)
-            setSelectedItem(selectedItem ? selectedItem - 1 : galleryItems.length - 1)   
+            setSelectedItem(selectedItem ? selectedItem - 1 : galleryItems.length - 1)
+            if(swiping){
+                setSwiping(false)
+            } 
         }
 
         const moveNext = () => {
             setForcedLoading(true)
             setSelectedItem(galleryItems.length === selectedItem + 1 ? 0 : selectedItem + 1)
+            if(swiping){
+                setSwiping(false)
+            }
         }
 
-        const setItemByIndex = (index) => {
-            setForcedLoading(true)
-            setSelectedItem(index)
-        }
+        // const setItemByIndex = (index) => {
+        //     setForcedLoading(true)
+        //     setSelectedItem(index)
+        // }
 
         // output
 
@@ -117,7 +121,7 @@ const RTJS_lightbox = (selector, options) => {
 
         // console.log(loadedImages)
 
-        return visible ? <div className={`rt-lightbox`} onClick={(event) => {
+        return visible ? <div className={`rt-lightbox${swiping ? ' rt-lightbox--swiping' : ''}`} onClick={(event) => {
             if (event.target.classList.contains('rt-lightbox') || event.target.classList.contains('rt-lightbox__closer')) {
                 setVisible(false)
             }
@@ -127,6 +131,7 @@ const RTJS_lightbox = (selector, options) => {
             <Image
                 errorText={finalOptions.imageErrorLabel}
                 key={`image-${selectedItem}`}
+                swiping={swiping}
                 showImage={img}
                 isItemLoaded={isLoaded && !forcedLoading ? isLoaded : undefined}
                 selectedItem={selectedItem}
@@ -168,9 +173,8 @@ const RTJS_lightbox = (selector, options) => {
                 onMouseMove={!isMultiple ? undefined : (event) => {
                     if (swipeOriginX.current){
                         event.preventDefault()
-                        if(Math.abs(swipeOriginX.current - event.clientX) > swipeTreshold){
-                            event.target.closest('.rt-lightbox').classList.add('rt-lightbox--swiping')
-                            event.target.style.transform = swipeOriginX.current > event.clientX ? 'translateX(-100px)' : 'translateX(100px)'
+                        if(!swiping && Math.abs(swipeOriginX.current - event.clientX) > swipeTreshold){
+                            setSwiping(swipeOriginX.current > event.clientX ? 'left' : 'right')
                         }
                     }
                 }}
@@ -187,9 +191,8 @@ const RTJS_lightbox = (selector, options) => {
                 onTouchMove={!isMultiple ? undefined : (event) => {
                     if (swipeOriginX.current){
                         event.preventDefault()
-                        if(Math.abs(swipeOriginX.current - event.changedTouches[0].clientX) > swipeTreshold){
-                            event.target.style.transform = swipeOriginX.current > event.changedTouches[0].clientX ? 'translateX(-100px)' : 'translateX(100px)'
-                            event.target.closest('.rt-lightbox').classList.add('rt-lightbox--swiping')
+                        if(!swiping && Math.abs(swipeOriginX.current - event.changedTouches[0].clientX) > swipeTreshold){
+                            setSwiping(swipeOriginX.current > event.changedTouches[0].clientX ? 'left' : 'right')
                         }
                     }
                 }}
