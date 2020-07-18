@@ -1,12 +1,14 @@
 {
     "name": "@rtsoft/rtjs",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Handy everyday library",
     "license": "MIT",
     "main": "./lib/RTJS.js",
     "repository": "rtsoftplzen/rtjs",
     "sideEffects": false,
-    "dependencies": {},
+    "dependencies": {
+        "throttle-debounce": "^2.2.1"
+    },
     "devDependencies": {
         "@babel/core": "^7.10.5",
         "@babel/preset-env": "^7.10.4",

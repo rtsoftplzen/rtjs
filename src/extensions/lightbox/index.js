@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import ReactDOM from 'react-dom'
+import { debounce } from 'throttle-debounce'
 import { defaultOptions } from './options'
 import Arrows from './arrows'
 import Closer from './closer'
 import Image from './image'
 import Spinner from './spinner'
 import Title from './title'
-import Thumbnails from './thumbnails'
+// import Thumbnails from './thumbnails'
 import './styles.scss'
 
 const swipeTreshold = 20
@@ -70,23 +71,28 @@ const RTJS_lightbox = (selector, options) => {
             }
         }, [selectedItem, loadedImages, forcedLoading])
 
-        // useEffect(() => {
-        //     if(visible){
-        //         window.addEventListener('keydown', handleKeyPress.current)
-        //     } else {
-        //         window.removeEventListener('keydown', handleKeyPress.current)
-        //     }
-        // }, [visible])
+        useEffect(() => {
+            if(visible){
+                window.addEventListener('keydown', handleKeyPress)
+            } else {
+                window.removeEventListener('keydown', handleKeyPress)
+            }
+            return () => {
+                window.removeEventListener('keydown', handleKeyPress)
+            }
+        }, [galleryItems, selectedItem, visible])
 
         // helpers
 
-        // const handleKeyPress = useRef((event) => {
-        //     if(event.keyCode === 37){
-        //         movePrev()
-        //     } else if (event.keyCode === 39){
-        //         moveNext()
-        //     }
-        // }, [galleryItems, selectedItem])
+        const handleKeyPress = useCallback(debounce(100, (event) => {
+            if(event.keyCode === 37){
+                movePrev()
+            } else if (event.keyCode === 39){
+                moveNext()
+            } else {
+                setVisible(false)
+            }
+        }), [galleryItems, selectedItem, visible])
 
         const movePrev = () => {
             setForcedLoading(true)
@@ -163,8 +169,8 @@ const RTJS_lightbox = (selector, options) => {
                     if (swipeOriginX.current){
                         event.preventDefault()
                         if(Math.abs(swipeOriginX.current - event.clientX) > swipeTreshold){
-                            event.target.style.transform = swipeOriginX.current > event.clientX ? 'translateX(-100px)' : 'translateX(100px)'
                             event.target.closest('.rt-lightbox').classList.add('rt-lightbox--swiping')
+                            event.target.style.transform = swipeOriginX.current > event.clientX ? 'translateX(-100px)' : 'translateX(100px)'
                         }
                     }
                 }}
@@ -188,7 +194,7 @@ const RTJS_lightbox = (selector, options) => {
                     }
                 }}
             />
-            <Thumbnails key={`thumbs-${selectedItem}`} onClick={(index) => setItemByIndex(index)} selectedItem={selectedItem} showThumbnails={finalOptions.showThumbnails && img && isMultiple} isItemLoaded={isLoaded && !forcedLoading} galleryItems={galleryItems} />
+            {/* <Thumbnails key={`thumbs-${selectedItem}`} onClick={(index) => setItemByIndex(index)} selectedItem={selectedItem} showThumbnails={finalOptions.showThumbnails && img && isMultiple} isItemLoaded={isLoaded && !forcedLoading} galleryItems={galleryItems} /> */}
             <Closer key={`closer-${selectedItem}`} showCloser={img && finalOptions.closeLabel} isItemLoaded={isLoaded && !forcedLoading} label={finalOptions.closeLabel} />
             <Arrows key={`arrows-${selectedItem}`} showArrows={finalOptions.showArrows && isMultiple && img} isItemLoaded={isLoaded && !forcedLoading} moveNext={moveNext} movePrev={movePrev} />
         </div> : null
