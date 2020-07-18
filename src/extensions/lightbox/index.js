@@ -97,7 +97,7 @@ const RTJS_lightbox = (selector, options) => {
                 setVisible(false)
             }
         }}>
-            <Title key={`title-${selectedItem}`} showTitle={img} isItemLoaded={isLoaded && !forcedLoading} title={img.title} selectedItem={selectedItem} sum={galleryItems.length} />
+            <Title key={`title-${selectedItem}`} showTitle={img && finalOptions.showTitle} isItemLoaded={isLoaded && !forcedLoading} title={img.title} selectedItem={selectedItem} sum={galleryItems.length} />
             <Spinner showSpinner={!isLoaded || forcedLoading} />
             <Image
                 errorText={finalOptions.imageErrorLabel}
@@ -163,7 +163,7 @@ const RTJS_lightbox = (selector, options) => {
                 }}
             />
             <Thumbnails key={`thumbs-${selectedItem}`} onClick={(index) => setItemByIndex(index)} selectedItem={selectedItem} showThumbnails={finalOptions.showThumbnails && img && isMultiple} isItemLoaded={isLoaded && !forcedLoading} galleryItems={galleryItems} />
-            <Closer key={`closer-${selectedItem}`} showCloser={img} isItemLoaded={isLoaded && !forcedLoading} label={finalOptions.closeLabel} />
+            <Closer key={`closer-${selectedItem}`} showCloser={img && finalOptions.closeLabel} isItemLoaded={isLoaded && !forcedLoading} label={finalOptions.closeLabel} />
             <Arrows key={`arrows-${selectedItem}`} showArrows={finalOptions.showArrows && isMultiple && img} isItemLoaded={isLoaded && !forcedLoading} moveNext={moveNext} movePrev={movePrev} />
         </div> : null
 
