@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onMouseDown, onTouchStart, onMouseUp, onMouseMove, onTouchEnd, onTouchMove, errorText }) => {
+const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onError, onMouseDown, onTouchStart, onMouseUp, onMouseMove, onTouchEnd, onTouchMove, errorText }) => {
 
-	const [error, setError] = useState(false)
-
-	return showImage && !error ?
+	return showImage ? (!isItemLoaded || !isItemLoaded.error ?
 		<img
-			className={`rt-lightbox__image${isItemLoaded ? ' rt-lightbox__image--visible' : ''}`}
+			className={`rt-lightbox__image${isItemLoaded && !isItemLoaded.error ? ' rt-lightbox__image--visible' : ''}`}
 			src={src}
 			onLoad={onLoad}
 			onMouseDown={onMouseDown}
@@ -15,12 +13,8 @@ const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onMouseDown
 			onMouseMove={onMouseMove}
 			onTouchEnd={onTouchEnd}
 			onTouchMove={onTouchMove}
-			onError={(error) => {
-				// console.log(error)
-				setError(error)
-				onLoad()
-			}}
-		/> : error ? <span 
+			onError={onError}
+		/> : (isItemLoaded.error ? <span 
 			onMouseDown={onMouseDown}
 			onTouchstart={onTouchStart}
 			onMouseUp={onMouseUp}
@@ -31,7 +25,7 @@ const Image = ({ showImage, selectedItem, isItemLoaded, src, onLoad, onMouseDown
 		>
 			[url: "{src}"]<br/><br/>
 			{errorText || '...'}
-		</span> : null
+		</span> : null)) : null
 }
 
 export default Image

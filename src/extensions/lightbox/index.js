@@ -23,7 +23,7 @@ const RTJS_lightbox = (selector, options) => {
 
         const [visible, setVisible] = useState(false)
         const [selectedItem, setSelectedItem] = useState(0)
-        const [loadedImages, setLoadedImages] = useState([])
+        const [loadedImages, setLoadedImages] = useState({})
         const [galleryItems, setGalleryItems] = useState(null)
         const [forcedLoading, setForcedLoading] = useState(false)
         const swipeOriginX = useRef(null)
@@ -57,6 +57,7 @@ const RTJS_lightbox = (selector, options) => {
             } else {
                 setGalleryItems([{bigSrc, title, smallSrc}])
             }
+
         }, [])
 
         useEffect(() => {
@@ -64,19 +65,35 @@ const RTJS_lightbox = (selector, options) => {
             if(wrapper && wrapper.classList.contains('rt-lightbox--swiping')){
                 wrapper.classList.remove('rt-lightbox--swiping')
             }
-            if(forcedLoading && loadedImages && galleryItems && loadedImages.includes(galleryItems[selectedItem].bigSrc)){
+            if(forcedLoading && loadedImages && loadedImages['item-'+selectedItem]){
                 setForcedLoading(false)
             }
-        }, [selectedItem, loadedImages, galleryItems, forcedLoading])
+        }, [selectedItem, loadedImages, forcedLoading])
+
+        // useEffect(() => {
+        //     if(visible){
+        //         window.addEventListener('keydown', handleKeyPress.current)
+        //     } else {
+        //         window.removeEventListener('keydown', handleKeyPress.current)
+        //     }
+        // }, [visible])
 
         // helpers
 
-        const movePrev = (delayed = false) => {
+        // const handleKeyPress = useRef((event) => {
+        //     if(event.keyCode === 37){
+        //         movePrev()
+        //     } else if (event.keyCode === 39){
+        //         moveNext()
+        //     }
+        // }, [galleryItems, selectedItem])
+
+        const movePrev = () => {
             setForcedLoading(true)
             setSelectedItem(selectedItem ? selectedItem - 1 : galleryItems.length - 1)   
         }
 
-        const moveNext = (delayed = false) => {
+        const moveNext = () => {
             setForcedLoading(true)
             setSelectedItem(galleryItems.length === selectedItem + 1 ? 0 : selectedItem + 1)
         }
@@ -89,8 +106,10 @@ const RTJS_lightbox = (selector, options) => {
         // output
 
         const img = galleryItems ? galleryItems[selectedItem] : undefined
-        const isLoaded = img && loadedImages ? loadedImages.includes(img.bigSrc) : undefined
+        const isLoaded = img && loadedImages ? loadedImages['item-'+selectedItem] : undefined
         const isMultiple = galleryItems ? galleryItems.length > 1 : undefined
+
+        // console.log(loadedImages)
 
         return visible ? <div className={`rt-lightbox`} onClick={(event) => {
             if (event.target.classList.contains('rt-lightbox') || event.target.classList.contains('rt-lightbox__closer')) {
@@ -103,13 +122,20 @@ const RTJS_lightbox = (selector, options) => {
                 errorText={finalOptions.imageErrorLabel}
                 key={`image-${selectedItem}`}
                 showImage={img}
-                isItemLoaded={isLoaded && !forcedLoading}
+                isItemLoaded={isLoaded && !forcedLoading ? isLoaded : undefined}
                 selectedItem={selectedItem}
                 src={img.bigSrc} 
                 onLoad={() => {
                     if(!isLoaded){
                         setTimeout(() => {
-                            setLoadedImages([...loadedImages, img.bigSrc])
+                            setLoadedImages({...loadedImages, ['item-'+selectedItem]: {error: false}})
+                        }, 200)
+                    }
+                }}
+                onError={() => {
+                    if(!isLoaded){
+                        setTimeout(() => {
+                            setLoadedImages({...loadedImages, ['item-'+selectedItem]: {error: true}})
                         }, 200)
                     }
                 }}
