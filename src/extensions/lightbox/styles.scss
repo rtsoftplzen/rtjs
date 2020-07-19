@@ -66,6 +66,7 @@ $fontSize: 14px;
   &__thumbnails {
     opacity: 0;
     background:#fff;
+    box-shadow: 0px 0px 20px #00000027;
     max-width: calc(100% - 8px);
     z-index: 13;
     position: absolute;
@@ -87,26 +88,30 @@ $fontSize: 14px;
       width: 0px;
       height: 0px;
       background: transparent; /* Chrome/Safari/Webkit */
-  }
+    }
+    transition: all 200ms linear;
     &--visible {
-      transition: all 200ms linear;
       opacity: 1;
       margin-bottom: 0;
     }
   }
   &__thumbnail {
     cursor: pointer;
-    opacity: 0.5;
-    box-shadow: 0px 0px 20px #00000027;
+    opacity: 0;
+    transition: all 200ms linear;
     height: 60px !important;
     margin: 0;
     padding: 0;
     &--active {
-      opacity: 1;
+      opacity : 1 !important;
+      filter: none !important;
+    }
+    &--settled {
+      opacity: 0.5;
+      filter: grayscale(50%);
     }
   }
   &__closer {
-    // box-shadow: 0px 0px 20px #00000027;
     opacity: 0;
     max-width: 80%;
     color: #fff;
@@ -132,7 +137,6 @@ $fontSize: 14px;
     }
   }
   &__title {
-    // box-shadow: 0px 0px 20px #00000027;
     opacity: 0;
     max-width: 80%;
     color: #fff;
@@ -173,6 +177,10 @@ $fontSize: 14px;
     flex-direction: column;
     font-style: italic;
     transition: all 200ms linear;
+    & > img {
+      max-width: 100px;
+      max-height: 100px;
+    }
     &--swiping-left {
       transform: translateX(-100px);
     }

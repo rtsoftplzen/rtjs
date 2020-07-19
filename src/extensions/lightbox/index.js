@@ -15,6 +15,16 @@ const swipeTreshold = 20
 const RTJS_lightbox = (selector, options) => {
 
     const finalOptions = {...defaultOptions, ...options}
+    let overflowSettingBackup
+
+    const handlePageOverflow = (state) => {
+        if (state === 'on'){
+            overflowSettingBackup = window.getComputedStyle(document.body).overflow
+            document.body.style.overflow = 'hidden'
+        } else if (state === 'off' && overflowSettingBackup){
+            document.body.style.overflow = overflowSettingBackup
+        }
+    }
 
     // lightbox react app
 
@@ -33,6 +43,7 @@ const RTJS_lightbox = (selector, options) => {
         // lifecycle
 
         useEffect(() => {
+            handlePageOverflow('on')
             setVisible(true)
             if(options.data && Array.isArray(options.data)){
                 setGalleryItems(options.data)
@@ -92,6 +103,7 @@ const RTJS_lightbox = (selector, options) => {
             } else if (isMultiple && event.keyCode === 39){
                 moveNext()
             } else {
+                handlePageOverflow('off')
                 setVisible(false)
             }
         }), [galleryItems, selectedItem, visible])
@@ -130,6 +142,7 @@ const RTJS_lightbox = (selector, options) => {
 
         return visible ? <div className={`rt-lightbox${swiping ? ' rt-lightbox--swiping' : ''}`} onClick={(event) => {
             if (event.target.classList.contains('rt-lightbox') || event.target.classList.contains('rt-lightbox__closer')) {
+                handlePageOverflow('off')
                 setVisible(false)
             }
         }}>
@@ -146,6 +159,7 @@ const RTJS_lightbox = (selector, options) => {
             />
             <Image
                 errorText={finalOptions.imageErrorLabel}
+                placeholderSrc={finalOptions.placeholderSrc} 
                 key={`image-${selectedItem}`}
                 swiping={swiping}
                 showImage={img}
@@ -239,15 +253,15 @@ const RTJS_lightbox = (selector, options) => {
     }
 
     document.body.querySelectorAll(selector).forEach(element => {
+        let checkContainer = document.getElementById('rt-lightbox-container')
+        if(!checkContainer){
+            const lightboxContainer = document.createElement('div')
+            lightboxContainer.setAttribute('id', 'rt-lightbox-container')
+            document.body.appendChild(lightboxContainer)
+            checkContainer = lightboxContainer
+        } 
         element.addEventListener('click', (event) => {
             event.preventDefault()
-            let checkContainer = document.getElementById('rt-lightbox-container')
-            if(!checkContainer){
-                const lightboxContainer = document.createElement('div')
-                lightboxContainer.setAttribute('id', 'rt-lightbox-container')
-                document.body.appendChild(lightboxContainer)
-                checkContainer = lightboxContainer
-            } 
             ReactDOM.unmountComponentAtNode(checkContainer);
             ReactDOM.render(<App element={element} />, checkContainer)
         })
