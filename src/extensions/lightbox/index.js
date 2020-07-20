@@ -26,7 +26,7 @@ const RTJS_lightbox = (selector, options) => {
         }
     }
 
-    // lightbox react app
+    // lightbox app
 
     const App = ({ element }) => {
 
@@ -102,7 +102,7 @@ const RTJS_lightbox = (selector, options) => {
                 movePrev()
             } else if (isMultiple && event.keyCode === 39){
                 moveNext()
-            } else {
+            } else if (event.keyCode === 27) {
                 handlePageOverflow('off')
                 setVisible(false)
             }
@@ -228,7 +228,7 @@ const RTJS_lightbox = (selector, options) => {
                 }}
             />
             <Thumbnails 
-                key={`thumbs-${selectedItem}`} 
+                // key={`thumbs-${selectedItem}`} 
                 onClick={(index) => setItemByIndex(index)} 
                 selectedItem={selectedItem} 
                 showThumbnails={finalOptions.showThumbnails && img && isMultiple} 
@@ -252,14 +252,19 @@ const RTJS_lightbox = (selector, options) => {
 
     }
 
+    // container
+
+    let checkContainer = document.getElementById('rt-lightbox-container')
+    if(!checkContainer){
+        const lightboxContainer = document.createElement('div')
+        lightboxContainer.setAttribute('id', 'rt-lightbox-container')
+        document.body.appendChild(lightboxContainer)
+        checkContainer = lightboxContainer
+    } 
+
+    // mounting 
+
     document.body.querySelectorAll(selector).forEach(element => {
-        let checkContainer = document.getElementById('rt-lightbox-container')
-        if(!checkContainer){
-            const lightboxContainer = document.createElement('div')
-            lightboxContainer.setAttribute('id', 'rt-lightbox-container')
-            document.body.appendChild(lightboxContainer)
-            checkContainer = lightboxContainer
-        } 
         element.addEventListener('click', (event) => {
             event.preventDefault()
             ReactDOM.unmountComponentAtNode(checkContainer);
