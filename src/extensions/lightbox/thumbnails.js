@@ -6,10 +6,12 @@ const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, o
     const wrapper = useRef(null)
     const scrollPosition = useRef({item: null, scroll: null})
     const [settledAll, setSettledAll] = useState(false)
+    const [scrollHint, setScrollHint] = useState(null)
 
     useEffect(() => {
-        if(!showThumbnails) return
+        if(!showThumbnails || !wrapper.current) return
         const handleScroll = (event) => {
+            console.log(event)
             scrollPosition.current = event.target.scrollLeft
         }
         wrapper.current.addEventListener('scroll', handleScroll)
@@ -19,7 +21,7 @@ const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, o
     })
 
     useLayoutEffect(() => {
-        if(!showThumbnails) return
+        if(!showThumbnails || !wrapper.current) return
         const wrapperPos = wrapper.current.getBoundingClientRect()
         const itemPos = wrapper.current.children[selectedItem].getBoundingClientRect()
 
