@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import { debounce } from 'throttle-debounce'
 import { defaultOptions } from './options'
-import Arrows from './arrows'
-import Closer from './closer'
-import Image from './image'
-import Spinner from './spinner'
-import Title from './title'
-import Thumbnails from './thumbnails'
+import { handlePageOverflow } from './helpers'
+import Arrows from './components/arrows'
+import Closer from './components/closer'
+import Image from './components/image'
+import Spinner from './components/spinner'
+import Title from './components/title'
+import Thumbnails from './components/thumbnails'
 import './styles.scss'
 
 const swipeTreshold = 20
@@ -15,16 +16,6 @@ const swipeTreshold = 20
 const RTJS_lightbox = (selector, options = {}) => {
 
     const finalOptions = {...defaultOptions, ...options}
-    let overflowSettingBackup
-
-    const handlePageOverflow = (state) => {
-        if (state === 'on'){
-            overflowSettingBackup = window.getComputedStyle(document.body).overflow
-            document.body.style.overflow = 'hidden'
-        } else if (state === 'off' && overflowSettingBackup){
-            document.body.style.overflow = overflowSettingBackup
-        }
-    }
 
     // lightbox app
 
@@ -32,7 +23,7 @@ const RTJS_lightbox = (selector, options = {}) => {
 
         // state
 
-        const [visible, setVisible] = useState(false)
+        const [visible, setVisible] = useState(null)
         const [selectedItem, setSelectedItem] = useState(0)
         const [loadedImages, setLoadedImages] = useState({})
         const [galleryItems, setGalleryItems] = useState(null)
@@ -74,7 +65,7 @@ const RTJS_lightbox = (selector, options = {}) => {
             } else {
                 setGalleryItems([{bigSrc, title, smallSrc}])
             }
-
+            
         }, [])
 
         useEffect(() => {
@@ -82,6 +73,18 @@ const RTJS_lightbox = (selector, options = {}) => {
                 setForcedLoading(false)
             }
         }, [selectedItem, loadedImages, forcedLoading])
+
+
+        useEffect(() => {
+
+            // onOpened / onClosed
+
+            if (visible && finalOptions.onOpened) {
+                finalOptions.onOpened(selectedItem)
+            } else if (visible === false && finalOptions.onClosed){
+                finalOptions.onClosed(selectedItem)
+            }
+        }, [visible])
 
         useEffect(() => {
             if(visible){
@@ -127,9 +130,6 @@ const RTJS_lightbox = (selector, options = {}) => {
         const setItemByIndex = (index) => {
             setForcedLoading(true)
             setSelectedItem(index)
-            // if(swiping){
-            //     setSwiping(false)
-            // } 
         }
 
         // output
@@ -230,7 +230,6 @@ const RTJS_lightbox = (selector, options = {}) => {
                 }}
             />
             <Thumbnails 
-                // key={`thumbs-${selectedItem}`} 
                 onClick={(index) => setItemByIndex(index)} 
                 selectedItem={selectedItem} 
                 showThumbnails={finalOptions.showThumbnails && img && isMultiple} 
