@@ -12,7 +12,7 @@ import './styles.scss'
 
 const swipeTreshold = 20
 
-const RTJS_lightbox = (selector, options) => {
+const RTJS_lightbox = (selector, options = {}) => {
 
     const finalOptions = {...defaultOptions, ...options}
     let overflowSettingBackup
@@ -138,7 +138,9 @@ const RTJS_lightbox = (selector, options) => {
         const isLoaded = img && loadedImages ? loadedImages['item-'+selectedItem] : undefined
         const isMultiple = galleryItems ? galleryItems.length > 1 : undefined
 
-        // console.log(galleryItems)
+        if(finalOptions.debug){
+            console.log(galleryItems)
+        }
 
         return visible ? <div className={`rt-lightbox${swiping ? ' rt-lightbox--swiping' : ''}`} onClick={(event) => {
             if (event.target.classList.contains('rt-lightbox') || event.target.classList.contains('rt-lightbox__closer')) {
