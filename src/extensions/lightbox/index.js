@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import { debounce } from 'throttle-debounce'
 import { defaultOptions } from './options'
-import { handlePageOverflow } from './helpers'
+import { handlePageOverflow, prepareGalleryItemsData } from './helpers'
 import Arrows from './components/arrows'
 import Closer from './components/closer'
 import Image from './components/image'
@@ -10,6 +10,7 @@ import Spinner from './components/spinner'
 import Title from './components/title'
 import Thumbnails from './components/thumbnails'
 import './styles.scss'
+import { usePrevious } from '../../hooks/usePrev'
 
 const swipeTreshold = 20
 
@@ -24,47 +25,22 @@ const RTJS_lightbox = (selector, options = {}) => {
         // state
 
         const [visible, setVisible] = useState(null)
-        const [selectedItem, setSelectedItem] = useState(0)
+        const [selectedItem, setSelectedItem] = useState(null)
         const [loadedImages, setLoadedImages] = useState({})
         const [galleryItems, setGalleryItems] = useState(null)
         const [forcedLoading, setForcedLoading] = useState(false)
         const [swiping, setSwiping] = useState(false)
         const swipeOriginX = useRef(null)
+        const prevSelectedItem = usePrevious(selectedItem)
 
         // lifecycle
 
         useEffect(() => {
             handlePageOverflow('on')
             setVisible(true)
-            if(options.data && Array.isArray(options.data)){
-                setGalleryItems(options.data)
-                return
-            }
-            const dataset = element.dataset 
-            const gallery = dataset.rtLightboxGallery
-            const bigSrc = element.getAttribute('href')  || dataset.rtLightboxSrc
-            const smallSrc = element.querySelector('img') ? element.querySelector('img').getAttribute('src') : dataset.rtLightboxThumbnailSrc
-            const title = element.getAttribute('title') || dataset.rtLightboxTitle
-            if(gallery){
-                const galleryElements = document.body.querySelectorAll('[data-rt-lightbox-gallery="' + gallery + '"]')
-                if (galleryElements.length > 1){
-                    const newGalleryItems = []
-                    galleryElements.forEach((item, index) => {
-                        if (item === element){
-                            setSelectedItem(index)
-                        }
-                        const bigSrc = item.getAttribute('href') || item.dataset.rtLightboxSrc
-                        const title = item.getAttribute('title') || item.dataset.rtLightboxTitle
-                        const smallSrc = item.querySelector('img') ? item.querySelector('img').getAttribute('src') : item.dataset.rtLightboxThumbnailSrc
-                        newGalleryItems.push({bigSrc, title, smallSrc})
-                    })
-                    setGalleryItems(newGalleryItems)
-                } else {
-                    setGalleryItems([{bigSrc, title, smallSrc}]) 
-                }
-            } else {
-                setGalleryItems([{bigSrc, title, smallSrc}])
-            }
+            const preparedItems = prepareGalleryItemsData(options, element)
+            setGalleryItems(preparedItems.items)
+            setSelectedItem(preparedItems.selectedItem)
             
         }, [])
 
@@ -85,6 +61,15 @@ const RTJS_lightbox = (selector, options = {}) => {
                 finalOptions.onClosed(selectedItem)
             }
         }, [visible])
+
+        useEffect(() => {
+
+            // onItemChanged
+
+            if(selectedItem && finalOptions.onItemChanged && prevSelectedItem !== null){
+                finalOptions.onItemChanged(selectedItem)
+            }
+        }, [selectedItem])
 
         useEffect(() => {
             if(visible){
@@ -139,7 +124,7 @@ const RTJS_lightbox = (selector, options = {}) => {
         const isMultiple = galleryItems ? galleryItems.length > 1 : undefined
 
         if(finalOptions.debug){
-            console.log(galleryItems)
+            console.log({selectedItem, galleryItems})
         }
 
         return visible ? <div className={`rt-lightbox${swiping ? ' rt-lightbox--swiping' : ''}`} onClick={(event) => {

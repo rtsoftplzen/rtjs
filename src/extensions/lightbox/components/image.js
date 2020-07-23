@@ -8,7 +8,7 @@ const Image = ({ showImage, selectedItem, isItemLoaded, src, swiping, placeholde
 	return showImage ? (!isItemLoaded || !isItemLoaded.error ?
 		<img
 			className={`rt-lightbox__image${extClass}`}
-			src={src}
+			src={src || '...'}
 			onLoad={onLoad}
 			onMouseDown={onMouseDown}
 			onTouchstart={onTouchStart}
