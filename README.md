@@ -59,7 +59,7 @@ RTJS_lightbox('.lightbox', {
 or data can be provided directly while initing
 
 ```html
-<span id="rt-lightbox" data-rt-lightbox-src="[path]" title="[title]">...</span>
+<span id="data-lightbox">click me</span>
 ```
 ```js
 RTJS_lightbox('#data-lightbox', {
