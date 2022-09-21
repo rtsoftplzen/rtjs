@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useLayoutEffect, useState } from 'react'
 
-const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, onClick, placeholderSrc}) => {
+const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, onClick, placeholderSrc, withoutBorder}) => {
 
     const settledThumbs = useRef({})
     const wrapper = useRef(null)
@@ -50,7 +50,12 @@ const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, o
             return <img 
                 src={item.smallSrc || placeholderSrc} 
                 alt={item.title || '...'} 
-                className={`rt-lightbox__thumbnail${settledThumbs.current['item-'+index] ? ' rt-lightbox__thumbnail--settled' : ''}${index === selectedItem ? ' rt-lightbox__thumbnail--active' : ''}`}
+                className={`
+                    rt-lightbox__thumbnail
+                    ${settledThumbs.current['item-'+index] ? ' rt-lightbox__thumbnail--settled' : ''}
+                    ${index === selectedItem ? ' rt-lightbox__thumbnail--active' : ''}
+                    ${withoutBorder ? ' rt-lightbox__thumbnail--without-border' : ''}
+                `}
                 onClick={(event) => {
                     event.preventDefault()
                     onClick(index)

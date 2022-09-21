@@ -1,8 +1,13 @@
 import React from 'react'
 
-const Image = ({ showImage, selectedItem, isItemLoaded, src, swiping, placeholderSrc, onLoad, onError, onMouseDown, onTouchStart, onMouseUp, onMouseMove, onTouchEnd, onTouchMove, errorText }) => {
+const Image = ({ showImage, selectedItem, isItemLoaded, src, swiping, placeholderSrc, onLoad, onError, onMouseDown, onTouchStart, onMouseUp, onMouseMove, onTouchEnd, onTouchMove, errorText, withoutBorder }) => {
 
-	const extClass = `${isItemLoaded && !isItemLoaded.error ? ' rt-lightbox__image--visible' : ''}${swiping === 'left' ? ' rt-lightbox__image--swiping-left' : ''}${swiping === 'right' ? ' rt-lightbox__image--swiping-right' : ''}`
+	const extClass = `
+		${isItemLoaded && !isItemLoaded.error ? ' rt-lightbox__image--visible' : ''}
+		${swiping === 'left' ? ' rt-lightbox__image--swiping-left' : ''}
+		${swiping === 'right' ? ' rt-lightbox__image--swiping-right' : ''}
+		${withoutBorder ? ' rt-lightbox__image--without-border' : ''}
+	`
 	const extClassError = `${swiping === 'left' ? ' rt-lightbox__image-error--swiping-left' : ''}${swiping === 'right' ? ' rt-lightbox__image-error--swiping-right' : ''}`
 
 	return showImage ? (!isItemLoaded || !isItemLoaded.error ?

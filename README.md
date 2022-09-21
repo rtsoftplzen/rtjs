@@ -44,6 +44,8 @@ RTJS_lightbox('.lightbox', {
     showThumbnails: true,
     debug: false,
     imageErrorLabel: 'Image could not be loaded',
+    withoutBorder: false,
+    titlePlacement: 'top'
     onOpened: (index) => {
         console.log('opened', index)
     },

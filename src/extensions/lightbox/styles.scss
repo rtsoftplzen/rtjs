@@ -94,6 +94,9 @@ $fontSize: 14px;
     transition: all 200ms linear;
     height: 50px !important;
     border: 2px solid #fff;
+    &--without-border {
+      border: none;
+    }
     margin: 0 1px;
     padding: 0;
     background: #fff;
@@ -199,6 +202,11 @@ $fontSize: 14px;
       border: 4px solid #fff;
       opacity: 1;
       margin-top: 0;
+    }
+    &--without-border {
+      &.rt-lightbox__image--visible {
+        border: none;
+      }
     }
     &--swiping-left {
       transform: translateX(-100px);

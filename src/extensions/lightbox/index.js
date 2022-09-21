@@ -122,6 +122,7 @@ const RTJS_lightbox = (selector, options = {}) => {
         const img = galleryItems ? galleryItems[selectedItem] : undefined
         const isLoaded = img && loadedImages ? loadedImages['item-'+selectedItem] : undefined
         const isMultiple = galleryItems ? galleryItems.length > 1 : undefined
+        const showTitleOnTop = finalOptions.showTitle === 'top';
 
         if(finalOptions.debug){
             console.log({selectedItem, galleryItems})
@@ -133,20 +134,29 @@ const RTJS_lightbox = (selector, options = {}) => {
                 setVisible(false)
             }
         }}>
-            <Title 
-                key={`title-${selectedItem}`} 
-                showTitle={img && finalOptions.showTitle} 
-                isItemLoaded={isLoaded && !forcedLoading} 
-                title={img.title} 
-                selectedItem={selectedItem} 
-                sum={galleryItems.length} 
-            />
+            {showTitleOnTop
+                ? <Title 
+                    key={`title-${selectedItem}`} 
+                    showTitle={img && finalOptions.showTitle} 
+                    isItemLoaded={isLoaded && !forcedLoading} 
+                    title={img.title} 
+                    selectedItem={selectedItem} 
+                    sum={galleryItems.length} 
+                />
+                : <Closer 
+                    key={`closer-${selectedItem}`} 
+                    showCloser={img && finalOptions.closeLabel} 
+                    isItemLoaded={isLoaded && !forcedLoading} 
+                    label={finalOptions.closeLabel}
+                />
+            }
             <Spinner 
                 showSpinner={!isLoaded || forcedLoading} 
             />
             <Image
                 errorText={finalOptions.imageErrorLabel}
-                placeholderSrc={finalOptions.placeholderSrc} 
+                placeholderSrc={finalOptions.placeholderSrc}
+                withoutBorder={finalOptions.withoutBorder}
                 key={`image-${selectedItem}`}
                 swiping={swiping}
                 showImage={img}
@@ -220,13 +230,25 @@ const RTJS_lightbox = (selector, options = {}) => {
                 showThumbnails={finalOptions.showThumbnails && img && isMultiple} 
                 isItemLoaded={isLoaded && !forcedLoading} 
                 galleryItems={galleryItems}
-                placeholderSrc={finalOptions.placeholderSrc} 
+                placeholderSrc={finalOptions.placeholderSrc}
+                withoutBorder={finalOptions.withoutBorder}
             />
-            <Closer 
-                key={`closer-${selectedItem}`} 
-                showCloser={img && finalOptions.closeLabel} 
-                isItemLoaded={isLoaded && !forcedLoading} 
-                label={finalOptions.closeLabel} />
+            {showTitleOnTop
+                ? <Closer 
+                    key={`closer-${selectedItem}`} 
+                    showCloser={img && finalOptions.closeLabel} 
+                    isItemLoaded={isLoaded && !forcedLoading} 
+                    label={finalOptions.closeLabel}
+                />
+                : <Title 
+                    key={`title-${selectedItem}`} 
+                    showTitle={img && finalOptions.showTitle} 
+                    isItemLoaded={isLoaded && !forcedLoading} 
+                    title={img.title} 
+                    selectedItem={selectedItem} 
+                    sum={galleryItems.length} 
+                />
+            }
             <Arrows 
                 key={`arrows-${selectedItem}`} 
                 showArrows={finalOptions.showArrows && isMultiple && img} 
