@@ -20,6 +20,7 @@ export const prepareGalleryItemsData = (options, element) => {
     const bigSrc = element.getAttribute('href')  || dataset.rtLightboxSrc
     const smallSrc = element.querySelector('img') ? element.querySelector('img').getAttribute('src') : dataset.rtLightboxThumbnailSrc
     const title = element.getAttribute('title') || dataset.rtLightboxTitle
+    const description = dataset.rtLightboxDescription || '';
     let selectedItem = 0
     if(gallery){
         const galleryElements = document.body.querySelectorAll('[data-rt-lightbox-gallery="' + gallery + '"]')
@@ -32,13 +33,14 @@ export const prepareGalleryItemsData = (options, element) => {
                 const bigSrc = item.getAttribute('href') || item.dataset.rtLightboxSrc
                 const title = item.getAttribute('title') || item.dataset.rtLightboxTitle
                 const smallSrc = item.querySelector('img') ? item.querySelector('img').getAttribute('src') : item.dataset.rtLightboxThumbnailSrc
-                newGalleryItems.push({bigSrc, title, smallSrc})
+                const description = item.getAttribute('data-rt-ligthbox-description') || item.dataset.rtLightboxDescription;
+                newGalleryItems.push({bigSrc, title, smallSrc, description})
             })
             return {items: newGalleryItems, selectedItem}
         } else {
-            return {items: [{bigSrc, title, smallSrc}], selectedItem}
+            return {items: [{bigSrc, title, smallSrc, description}], selectedItem}
         }
     } else {
-        return {items: [{bigSrc, title, smallSrc}], selectedItem}
+        return {items: [{bigSrc, title, smallSrc, description}], selectedItem}
     }
 }

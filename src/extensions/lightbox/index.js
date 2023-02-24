@@ -141,7 +141,8 @@ const RTJS_lightbox = (selector, options = {}) => {
                     isItemLoaded={isLoaded && !forcedLoading} 
                     title={img.title} 
                     selectedItem={selectedItem} 
-                    sum={galleryItems.length} 
+                    sum={galleryItems.length}
+                    description={img.description}
                 />
                 : <Closer 
                     key={`closer-${selectedItem}`} 
@@ -246,7 +247,8 @@ const RTJS_lightbox = (selector, options = {}) => {
                     isItemLoaded={isLoaded && !forcedLoading} 
                     title={img.title} 
                     selectedItem={selectedItem} 
-                    sum={galleryItems.length} 
+                    sum={galleryItems.length}
+                    description={img.description}
                 />
             }
             <Arrows 
