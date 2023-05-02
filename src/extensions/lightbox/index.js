@@ -137,7 +137,8 @@ const RTJS_lightbox = (selector, options = {}) => {
             {showTitleOnTop
                 ? <Title 
                     key={`title-${selectedItem}`} 
-                    showTitle={img && finalOptions.showTitle} 
+                    showTitle={img && finalOptions.showTitle}
+                    onlyPagination={img && finalOptions.onlyPagination}
                     isItemLoaded={isLoaded && !forcedLoading} 
                     title={img.title} 
                     selectedItem={selectedItem} 
@@ -146,9 +147,10 @@ const RTJS_lightbox = (selector, options = {}) => {
                 />
                 : <Closer 
                     key={`closer-${selectedItem}`} 
-                    showCloser={img && finalOptions.closeLabel} 
+                    showCloser={img && (finalOptions.closeLabel || finalOptions.showEmptyCloser)} 
                     isItemLoaded={isLoaded && !forcedLoading} 
                     label={finalOptions.closeLabel}
+                    wrapperClasses={finalOptions.wrapperClasses.closer}
                 />
             }
             <Spinner 
@@ -229,6 +231,8 @@ const RTJS_lightbox = (selector, options = {}) => {
                 onClick={(index) => setItemByIndex(index)} 
                 selectedItem={selectedItem} 
                 showThumbnails={finalOptions.showThumbnails && img && isMultiple} 
+                showThumbnailsButton={finalOptions.showThumbnailsButton && img && isMultiple}
+                thumbnailsButtonTitle={finalOptions.thumbnailsButtonTitle}
                 isItemLoaded={isLoaded && !forcedLoading} 
                 galleryItems={galleryItems}
                 placeholderSrc={finalOptions.placeholderSrc}
@@ -237,13 +241,15 @@ const RTJS_lightbox = (selector, options = {}) => {
             {showTitleOnTop
                 ? <Closer 
                     key={`closer-${selectedItem}`} 
-                    showCloser={img && finalOptions.closeLabel} 
+                    showCloser={img && (finalOptions.closeLabel || finalOptions.showEmptyCloser)} 
                     isItemLoaded={isLoaded && !forcedLoading} 
                     label={finalOptions.closeLabel}
+                    wrapperClasses={finalOptions.wrapperClasses.closer}
                 />
                 : <Title 
                     key={`title-${selectedItem}`} 
-                    showTitle={img && finalOptions.showTitle} 
+                    showTitle={img && finalOptions.showTitle}
+                    onlyPagination={img && finalOptions.onlyPagination}
                     isItemLoaded={isLoaded && !forcedLoading} 
                     title={img.title} 
                     selectedItem={selectedItem} 
@@ -253,10 +259,12 @@ const RTJS_lightbox = (selector, options = {}) => {
             }
             <Arrows 
                 key={`arrows-${selectedItem}`} 
-                showArrows={finalOptions.showArrows && isMultiple && img} 
+                showArrows={finalOptions.showArrows && isMultiple && img}
+                arrowsTitle={finalOptions.arrowsTitle}
                 isItemLoaded={isLoaded && !forcedLoading} 
                 moveNext={moveNext} 
-                movePrev={movePrev} 
+                movePrev={movePrev}
+                wrapperClasses={finalOptions.wrapperClasses.arrows}
             />
         </div> : null
 
