@@ -44,14 +44,14 @@ $fontSize: 14px;
   justify-content: center;
   transition: all 200ms linear;
   &--swiping > * {
-      opacity: 0.5;
+      opacity: 0.5 !important;
   }
   &__spinner {
-    border-top-color: rgba(#fff, 0.2);
-    border-right-color: rgba(#fff, 0.2);
-    border-bottom-color: rgba(#fff, 0.2);
-    border-left-color: #fff;
-    position: absolute;
+    border-top-color: rgba(#fff, 0.2) !important;
+    border-right-color: rgba(#fff, 0.2) !important;
+    border-bottom-color: rgba(#fff, 0.2) !important;
+    border-left-color: #fff !important;
+    position: absolute !important;
     z-index: -1;
     left: 50%;
     top: 50%;
@@ -59,8 +59,8 @@ $fontSize: 14px;
     margin-top: -2em;
     &,
     &:after {
-      width: 4em;
-      height: 4em;
+      width: 4em !important;
+      height: 4em !important;
     }
   }
   &__thumbnails {
@@ -75,6 +75,7 @@ $fontSize: 14px;
     justify-self: center;
     bottom: 4px;
     overflow: hidden;
+    overflow-x: auto;
     align-items: center;
     display:flex;
     flex-direction: row;
@@ -85,26 +86,13 @@ $fontSize: 14px;
       height: 0px;
       background: transparent; /* Chrome/Safari/Webkit */
     }
-
-    &__scroll {
-      overflow-x: auto;
-    }
-
-    &__button {
-      position: absolute;
-      bottom: 100%;
-      padding: 16px;
-      border: 0;
-      cursor: pointer;
-      background-color: white;
-    }
     transition: all 200ms linear;
   }
   &__thumbnail {
     cursor: pointer;
     opacity: 0;
     transition: all 200ms linear;
-    height: 50px;
+    height: 50px !important;
     border: 2px solid #fff;
     &--without-border {
       border: none;
@@ -113,8 +101,8 @@ $fontSize: 14px;
     padding: 0;
     background: #fff;
     &--active {
-      opacity : 1;
-      filter: none;
+      opacity : 1 !important;
+      filter: none !important;
       box-shadow: 0px 0px 10px #000;
     }
     &--settled {

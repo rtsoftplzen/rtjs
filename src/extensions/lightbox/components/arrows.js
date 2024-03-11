@@ -1,49 +1,14 @@
-import React from "react";
+import React from 'react'
 
-const Arrows = ({
-  showArrows,
-  arrowsTitle,
-  isItemLoaded,
-  moveNext,
-  movePrev,
-  wrapperClasses,
-}) => {
-  return (
-    <>
-      {showArrows && (
-        <div
-          onClick={() => {
-            movePrev();
-          }}
-          className={`rt-lightbox__prev${
-            isItemLoaded ? " rt-lightbox__prev--visible" : ""
-          }${wrapperClasses.left ? " " + wrapperClasses.left : ""}`}
-        >
-          {arrowsTitle.left ? (
-            arrowsTitle.left
-          ) : (
-            <div className="rt-lightbox__next__inner"></div>
-          )}
-        </div>
-      )}
-      {showArrows && (
-        <div
-          onClick={() => {
-            moveNext();
-          }}
-          className={`rt-lightbox__next${
-            isItemLoaded ? " rt-lightbox__next--visible" : ""
-          }${wrapperClasses.right ? " " + wrapperClasses.right : ""}`}
-        >
-          {arrowsTitle.right ? (
-            arrowsTitle.right
-          ) : (
-            <div className="rt-lightbox__next__inner"></div>
-          )}
-        </div>
-      )}
+const Arrows = ({showArrows, isItemLoaded, moveNext, movePrev}) => {
+    return <>
+        {showArrows && <div onClick={() => {
+            movePrev()
+        }} className={`rt-lightbox__prev${isItemLoaded ? ' rt-lightbox__prev--visible' : ''}`}>&lt;</div>}
+        {showArrows && <div onClick={() => {
+            moveNext()
+        }} className={`rt-lightbox__next${isItemLoaded ? ' rt-lightbox__next--visible' : ''}`}>&gt;</div>}
     </>
-  );
-};
+}
 
-export default Arrows;
+export default Arrows
