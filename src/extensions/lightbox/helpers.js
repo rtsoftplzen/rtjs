@@ -1,3 +1,6 @@
+import { CONTENT_TYPES, contentTypeExists } from "./content-types"
+import { extractFullDataFromElement } from "./data-extraction"
+
 let overflowSettingBackup
 
 export const handlePageOverflow = (state) => {
@@ -9,38 +12,43 @@ export const handlePageOverflow = (state) => {
     }
 }
 
+
+export const getAllElementsToPrepare = (element) => {
+    const dataset = element.dataset;
+    const galleryId = dataset.rtLightboxGallery;
+    const hasGalleryId = galleryId !== undefined;
+
+    // if galleryId is present, take all the items belonging to that gallery from the DOM (including this one)
+    // otherwise, just take this one
+    const galleryElements = hasGalleryId
+        ? document.body.querySelectorAll('[data-rt-lightbox-gallery="' + galleryId + '"]')
+        : [element];
+
+    return galleryElements;
+}
+
 export const prepareGalleryItemsData = (options, element) => {
 
+    // data was provided directly through a prop
     if(options.data && Array.isArray(options.data)){
         return {items: options.data, selectedItem: 0}
     }
-    
-    const dataset = element.dataset 
-    const gallery = dataset.rtLightboxGallery
-    const bigSrc = element.getAttribute('href')  || dataset.rtLightboxSrc
-    const smallSrc = element.querySelector('img') ? element.querySelector('img').getAttribute('src') : dataset.rtLightboxThumbnailSrc
-    const title = element.getAttribute('title') || dataset.rtLightboxTitle
-    const description = dataset.rtLightboxDescription || '';
-    let selectedItem = 0
-    if(gallery){
-        const galleryElements = document.body.querySelectorAll('[data-rt-lightbox-gallery="' + gallery + '"]')
-        if (galleryElements.length > 1){
-            const newGalleryItems = []
-            galleryElements.forEach((item, index) => {
-                if (item === element){
-                    selectedItem = index
-                }
-                const bigSrc = item.getAttribute('href') || item.dataset.rtLightboxSrc
-                const title = item.getAttribute('title') || item.dataset.rtLightboxTitle
-                const smallSrc = item.querySelector('img') ? item.querySelector('img').getAttribute('src') : item.dataset.rtLightboxThumbnailSrc
-                const description = item.getAttribute('data-rt-ligthbox-description') || item.dataset.rtLightboxDescription;
-                newGalleryItems.push({bigSrc, title, smallSrc, description})
-            })
-            return {items: newGalleryItems, selectedItem}
-        } else {
-            return {items: [{bigSrc, title, smallSrc, description}], selectedItem}
+
+    // data will need to be extracted from the DOM
+    const galleryElements = getAllElementsToPrepare(element);
+
+    let selectedItem = 0;
+    const newGalleryItems = []
+
+    galleryElements.forEach((item, index) => {
+        if (item === element){
+            selectedItem = index
         }
-    } else {
-        return {items: [{bigSrc, title, smallSrc, description}], selectedItem}
-    }
+        
+        const fullData = extractFullDataFromElement(item, options.customItemsProvider);
+        newGalleryItems.push(fullData);
+    })
+    return {items: newGalleryItems, selectedItem}
+
+    
 }

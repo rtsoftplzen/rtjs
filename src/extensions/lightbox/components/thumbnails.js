@@ -1,4 +1,7 @@
 import React, { useRef, useEffect, useLayoutEffect, useState } from 'react'
+import { CONTENT_TYPES, CONTENT_TYPES_TO_THUMBNAIL_PLACEHOLDERS, getContentTypeDefaultPlaceholder, getImageThumbnailSrc } from '../content-types'
+
+const WRAPPER_BASE_CLASS = 'rt-lightbox__thumbnail-item-wrapper';
 
 const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, onClick, placeholderSrc, withoutBorder}) => {
 
@@ -45,39 +48,61 @@ const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, o
 
     })
 
-    return showThumbnails ? <div ref={wrapper} className={`rt-lightbox__thumbnails rt-lightbox__thumbnails--visible`}>
+    if(!showThumbnails) {
+        return null;
+    }
+
+
+    return <div ref={wrapper} className={`rt-lightbox__thumbnails rt-lightbox__thumbnails--visible`}>
         {galleryItems.map((item, index) => {
-            return <img 
-                src={item.smallSrc || placeholderSrc} 
+            
+
+            const thumbnailSrc = getImageThumbnailSrc(item, placeholderSrc);
+
+            const handleClick = (event) => {
+                event.preventDefault()
+                onClick(index)
+            }
+
+            const onLoad = (event) => {
+                settledThumbs.current['item-'+index] = true
+                event.target.parentNode.classList.add('rt-lightbox__thumbnail--settled')
+                if(Object.keys(settledThumbs.current).length === galleryItems.length){
+                    setSettledAll(true)
+                }
+            }
+
+            const onError = (event) => {
+                settledThumbs.current['item-'+index] = true
+                event.target.src = getContentTypeDefaultPlaceholder(item.contentType);
+                event.target.parentNode.classList.add('rt-lightbox__thumbnail--settled')
+                if(Object.keys(settledThumbs.current).length === galleryItems.length){
+                    setSettledAll(true)
+                }
+            }
+
+            const isSettled = !!settledThumbs.current['item-'+index];
+            const isActive = index === selectedItem;
+            const isWithoutBorder = withoutBorder;
+
+            const wrapperClasses = `
+                ${WRAPPER_BASE_CLASS}
+                ${isSettled ? `${WRAPPER_BASE_CLASS}--settled` : ''}
+                ${isActive ? `${WRAPPER_BASE_CLASS}--active` : ''}
+                ${isWithoutBorder ? `${WRAPPER_BASE_CLASS}--without-border` : ''}
+                ${`${WRAPPER_BASE_CLASS}--${item.contentType}`}
+            `;
+
+            return <div className={wrapperClasses}><img 
+                src={thumbnailSrc} 
                 alt={item.title || '...'} 
-                className={`
-                    rt-lightbox__thumbnail
-                    ${settledThumbs.current['item-'+index] ? ' rt-lightbox__thumbnail--settled' : ''}
-                    ${index === selectedItem ? ' rt-lightbox__thumbnail--active' : ''}
-                    ${withoutBorder ? ' rt-lightbox__thumbnail--without-border' : ''}
-                `}
-                onClick={(event) => {
-                    event.preventDefault()
-                    onClick(index)
-                }}
-                onLoad={(event) => {
-                    settledThumbs.current['item-'+index] = true
-                    event.target.classList.add('rt-lightbox__thumbnail--settled')
-                    if(Object.keys(settledThumbs.current).length === galleryItems.length){
-                        setSettledAll(true)
-                    }
-                }}
-                onError={(event) => {
-                    settledThumbs.current['item-'+index] = true
-                    event.target.src = placeholderSrc
-                    event.target.classList.add('rt-lightbox__thumbnail--settled')
-                    if(Object.keys(settledThumbs.current).length === galleryItems.length){
-                        setSettledAll(true)
-                    }
-                }}
-            />
+                className="rt-lightbox__thumbnail"
+                onClick={handleClick}
+                onLoad={onLoad}
+                onError={onError}
+            /></div>
         })}
-    </div> : null
+    </div>
 
 }
 

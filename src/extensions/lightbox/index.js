@@ -5,14 +5,22 @@ import { defaultOptions } from './options'
 import { handlePageOverflow, prepareGalleryItemsData } from './helpers'
 import Arrows from './components/arrows'
 import Closer from './components/closer'
-import Image from './components/image'
 import Spinner from './components/spinner'
 import Title from './components/title'
 import Thumbnails from './components/thumbnails'
 import './styles.scss'
 import { usePrevious } from '../../hooks/usePrev'
+import GalleryItem from './components/gallery-item'
+import { getCustomItemProviderByContentType } from './custom-items'
+import { LOAD_STATES, isLoadingFinished } from './load-states'
 
 const swipeTreshold = 20
+
+const KEYCODES = Object.freeze({
+    ARROW_LEFT: 37,
+    ARROW_RIGHT: 39,
+    ESCAPE: 27
+});
 
 const RTJS_lightbox = (selector, options = {}) => {
 
@@ -25,31 +33,50 @@ const RTJS_lightbox = (selector, options = {}) => {
         // state
 
         const [visible, setVisible] = useState(null)
+        
+        // selectedItem is the index of the currently displayed item
         const [selectedItem, setSelectedItem] = useState(null)
-        const [loadedImages, setLoadedImages] = useState({})
+
+        const [itemLoadState, setItemLoadState] = useState(LOAD_STATES.PENDING);
+
         const [galleryItems, setGalleryItems] = useState(null)
+
+        const galleryItem = galleryItems ? galleryItems[selectedItem] : undefined;
+        const prevGalleryItem = usePrevious(galleryItem);
+
         const [forcedLoading, setForcedLoading] = useState(false)
         const [swiping, setSwiping] = useState(false)
         const swipeOriginX = useRef(null)
         const prevSelectedItem = usePrevious(selectedItem)
 
+        const customItemsProvider = finalOptions.customItemsProvider;
+        
         // lifecycle
 
+        const openLightbox = () => {
+            handlePageOverflow('on');
+            setVisible(true);
+        }
+
+        const closeLightbox = () => {
+            handlePageOverflow('off');
+            setVisible(false);
+        }
+
         useEffect(() => {
-            handlePageOverflow('on')
-            setVisible(true)
-            const preparedItems = prepareGalleryItemsData(options, element)
+            openLightbox();
+            const preparedItems = prepareGalleryItemsData(options, element);
+            
             setGalleryItems(preparedItems.items)
             setSelectedItem(preparedItems.selectedItem)
             
         }, [])
 
         useEffect(() => {
-            if(forcedLoading && loadedImages && loadedImages['item-'+selectedItem]){
-                setForcedLoading(false)
+            if(forcedLoading && isLoadingFinished(itemLoadState)){
+                setForcedLoading(false);
             }
-        }, [selectedItem, loadedImages, forcedLoading])
-
+        }, [selectedItem, itemLoadState, forcedLoading])
 
         useEffect(() => {
 
@@ -61,15 +88,47 @@ const RTJS_lightbox = (selector, options = {}) => {
                 finalOptions.onClosed(selectedItem)
             }
         }, [visible])
-
+        
         useEffect(() => {
 
             // onItemChanged
-
-            if(selectedItem && finalOptions.onItemChanged && prevSelectedItem !== null){
+            if(selectedItem !== null && finalOptions.onItemChanged && prevSelectedItem !== null){
                 finalOptions.onItemChanged(selectedItem)
             }
         }, [selectedItem])
+        
+        // custom component mount
+        useEffect(() => {
+
+            if(!galleryItem)
+            {
+                return;
+            }
+
+            const singleProvider = getCustomItemProviderByContentType(galleryItem.contentType, customItemsProvider);
+            const lastProvider = getCustomItemProviderByContentType(prevGalleryItem?.contentType, customItemsProvider);
+
+            if(!singleProvider && !lastProvider)
+            {
+                return;
+            }
+
+            // either opening or changing items
+            const mounted = visible;
+            if(mounted && singleProvider && singleProvider.onItemMount)
+            {
+                singleProvider.onItemMount(selectedItem, galleryItem);
+            }
+
+            // either closing or moving away from the item
+            if(!visible || lastProvider && lastProvider.onItemUnmount)
+            {
+                lastProvider.onItemUnmount(selectedItem, galleryItem);
+            }
+            
+
+        }, [visible, selectedItem, galleryItem])
+
 
         useEffect(() => {
             if(visible){
@@ -86,18 +145,19 @@ const RTJS_lightbox = (selector, options = {}) => {
 
         const handleKeyPress = useCallback(debounce(100, (event) => {
             const isMultiple = galleryItems && galleryItems.length > 1
-            if(isMultiple && event.keyCode === 37){
+            if(isMultiple && event.keyCode === KEYCODES.ARROW_LEFT){
                 movePrev()
-            } else if (isMultiple && event.keyCode === 39){
+            } else if (isMultiple && event.keyCode === KEYCODES.ARROW_RIGHT){
                 moveNext()
-            } else if (event.keyCode === 27) {
-                handlePageOverflow('off')
-                setVisible(false)
+            } else if (event.keyCode === KEYCODES.ESCAPE) {
+                closeLightbox();
             }
         }), [galleryItems, selectedItem, visible])
 
         const movePrev = () => {
-            setForcedLoading(true)
+            setItemLoadState(LOAD_STATES.PENDING);
+            setForcedLoading(true);
+
             setSelectedItem(selectedItem ? selectedItem - 1 : galleryItems.length - 1)
             if(swiping){
                 setSwiping(false)
@@ -105,7 +165,9 @@ const RTJS_lightbox = (selector, options = {}) => {
         }
 
         const moveNext = () => {
-            setForcedLoading(true)
+            setItemLoadState(LOAD_STATES.PENDING);
+            setForcedLoading(true);
+            
             setSelectedItem(galleryItems.length === selectedItem + 1 ? 0 : selectedItem + 1)
             if(swiping){
                 setSwiping(false)
@@ -113,82 +175,102 @@ const RTJS_lightbox = (selector, options = {}) => {
         }
 
         const setItemByIndex = (index) => {
-            setForcedLoading(true)
+            setItemLoadState(LOAD_STATES.PENDING);
+            setForcedLoading(true);
+
             setSelectedItem(index)
         }
 
         // output
 
-        const img = galleryItems ? galleryItems[selectedItem] : undefined
-        const isLoaded = img && loadedImages ? loadedImages['item-'+selectedItem] : undefined
-        const isMultiple = galleryItems ? galleryItems.length > 1 : undefined
+        const isLoadingDone = galleryItem && isLoadingFinished(itemLoadState);
+        
+        const hasMultipleGalleryItems = galleryItems ? galleryItems.length > 1 : undefined
+        
         const showTitleOnTop = finalOptions.showTitle === 'top';
 
         if(finalOptions.debug){
             console.log({selectedItem, galleryItems})
         }
 
-        return visible ? <div className={`rt-lightbox${swiping ? ' rt-lightbox--swiping' : ''}`} onClick={(event) => {
+        if(!visible) 
+        {
+            return null;
+        }
+
+        const titleJSX = (
+            <Title 
+                key={`title-${selectedItem}`} 
+                showTitle={galleryItem && finalOptions.showTitle} 
+                isItemLoaded={isLoadingDone} 
+                title={galleryItem && galleryItem.title} 
+                selectedItem={selectedItem} 
+                sum={galleryItems.length}
+                description={galleryItem && galleryItem.description}
+            />
+        );
+
+        const closerJSX = (
+            <Closer 
+                key={`closer-${selectedItem}`} 
+                showCloser={galleryItem && finalOptions.closeLabel} 
+                isItemLoaded={isLoadingDone} 
+                label={finalOptions.closeLabel}
+            />
+        );
+
+        const handleLightboxClick = (event) => {
             if (event.target.classList.contains('rt-lightbox') || event.target.classList.contains('rt-lightbox__closer')) {
-                handlePageOverflow('off')
-                setVisible(false)
+                closeLightbox();
             }
-        }}>
+        }
+
+        const handleImageLoadingFinished = (error) => {
+            setItemLoadState(
+                error ? LOAD_STATES.ERROR : LOAD_STATES.LOADED,
+            );
+        }
+
+        const showSpinner = !isLoadingDone || forcedLoading;
+        
+        const galleryItemKey = `gallery-item-${selectedItem}`;
+
+        return <div className={`rt-lightbox${swiping ? ' rt-lightbox--swiping' : ''}`} onClick={handleLightboxClick}>
             {showTitleOnTop
-                ? <Title 
-                    key={`title-${selectedItem}`} 
-                    showTitle={img && finalOptions.showTitle} 
-                    isItemLoaded={isLoaded && !forcedLoading} 
-                    title={img.title} 
-                    selectedItem={selectedItem} 
-                    sum={galleryItems.length}
-                    description={img.description}
-                />
-                : <Closer 
-                    key={`closer-${selectedItem}`} 
-                    showCloser={img && finalOptions.closeLabel} 
-                    isItemLoaded={isLoaded && !forcedLoading} 
-                    label={finalOptions.closeLabel}
-                />
+                ? titleJSX
+                : closerJSX
             }
             <Spinner 
-                showSpinner={!isLoaded || forcedLoading} 
+                showSpinner={showSpinner} 
             />
-            <Image
+            <GalleryItem
                 errorText={finalOptions.imageErrorLabel}
                 placeholderSrc={finalOptions.placeholderSrc}
                 withoutBorder={finalOptions.withoutBorder}
-                key={`image-${selectedItem}`}
+                key={galleryItemKey}
                 swiping={swiping}
-                showImage={img}
-                isItemLoaded={isLoaded && !forcedLoading ? isLoaded : undefined}
+                galleryItem={galleryItem}
+                itemLoadState={itemLoadState}
                 selectedItem={selectedItem}
-                src={img.bigSrc} 
+                src={galleryItem.bigSrc}
+                customItemsProvider={finalOptions.customItemsProvider}
                 onLoad={() => {
-                    if(!isLoaded){
-                        setTimeout(() => {
-                            setLoadedImages({...loadedImages, ['item-'+selectedItem]: {error: false}})
-                        }, 200)
-                    }
+                    handleImageLoadingFinished(false);
                 }}
                 onError={() => {
-                    if(!isLoaded){
-                        setTimeout(() => {
-                            setLoadedImages({...loadedImages, ['item-'+selectedItem]: {error: true}})
-                        }, 200)
-                    }
+                    handleImageLoadingFinished(true);
                 }}
-                onMouseDown={!isMultiple ? undefined : (event) => {
+                onMouseDown={!hasMultipleGalleryItems ? undefined : (event) => {
                     event.preventDefault()
                     if(event.button === 0){
                         swipeOriginX.current = event.clientX
                     }
                 }} 
-                onTouchStart={!isMultiple ? undefined : (event) => {
+                onTouchStart={!hasMultipleGalleryItems ? undefined : (event) => {
                     event.preventDefault()
                     swipeOriginX.current = event.changedTouches[0].clientX
                 }} 
-                onMouseUp={!isMultiple ? undefined : (event) => {
+                onMouseUp={!hasMultipleGalleryItems ? undefined : (event) => {
                     event.preventDefault()
                     if(!swipeOriginX.current) return
                     if (swipeOriginX.current > event.clientX){
@@ -198,7 +280,7 @@ const RTJS_lightbox = (selector, options = {}) => {
                     }
                     swipeOriginX.current = null
                 }} 
-                onMouseMove={!isMultiple ? undefined : (event) => {
+                onMouseMove={!hasMultipleGalleryItems ? undefined : (event) => {
                     if (swipeOriginX.current){
                         event.preventDefault()
                         if(!swiping && Math.abs(swipeOriginX.current - event.clientX) > swipeTreshold){
@@ -206,7 +288,7 @@ const RTJS_lightbox = (selector, options = {}) => {
                         }
                     }
                 }}
-                onTouchEnd={!isMultiple ? undefined : (event) => {
+                onTouchEnd={!hasMultipleGalleryItems ? undefined : (event) => {
                     event.preventDefault()
                     if(!swipeOriginX.current) return
                     if (swipeOriginX.current > event.changedTouches[0].clientX){
@@ -216,7 +298,7 @@ const RTJS_lightbox = (selector, options = {}) => {
                     }
                     swipeOriginX.current = null
                 }} 
-                onTouchMove={!isMultiple ? undefined : (event) => {
+                onTouchMove={!hasMultipleGalleryItems ? undefined : (event) => {
                     if (swipeOriginX.current){
                         event.preventDefault()
                         if(!swiping && Math.abs(swipeOriginX.current - event.changedTouches[0].clientX) > swipeTreshold){
@@ -228,37 +310,24 @@ const RTJS_lightbox = (selector, options = {}) => {
             <Thumbnails 
                 onClick={(index) => setItemByIndex(index)} 
                 selectedItem={selectedItem} 
-                showThumbnails={finalOptions.showThumbnails && img && isMultiple} 
-                isItemLoaded={isLoaded && !forcedLoading} 
+                showThumbnails={finalOptions.showThumbnails && galleryItem && hasMultipleGalleryItems} 
+                isItemLoaded={isLoadingDone && !forcedLoading} 
                 galleryItems={galleryItems}
                 placeholderSrc={finalOptions.placeholderSrc}
                 withoutBorder={finalOptions.withoutBorder}
             />
             {showTitleOnTop
-                ? <Closer 
-                    key={`closer-${selectedItem}`} 
-                    showCloser={img && finalOptions.closeLabel} 
-                    isItemLoaded={isLoaded && !forcedLoading} 
-                    label={finalOptions.closeLabel}
-                />
-                : <Title 
-                    key={`title-${selectedItem}`} 
-                    showTitle={img && finalOptions.showTitle} 
-                    isItemLoaded={isLoaded && !forcedLoading} 
-                    title={img.title} 
-                    selectedItem={selectedItem} 
-                    sum={galleryItems.length}
-                    description={img.description}
-                />
+                ? closerJSX
+                : titleJSX
             }
             <Arrows 
                 key={`arrows-${selectedItem}`} 
-                showArrows={finalOptions.showArrows && isMultiple && img} 
-                isItemLoaded={isLoaded && !forcedLoading} 
+                showArrows={finalOptions.showArrows && hasMultipleGalleryItems && galleryItem} 
+                isItemLoaded={isLoadingDone && !forcedLoading} 
                 moveNext={moveNext} 
                 movePrev={movePrev} 
             />
-        </div> : null
+        </div>
 
     }
 
