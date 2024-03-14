@@ -78,21 +78,25 @@ RTJS_lightbox('#data-lightbox', {
 - do not use content types that are already handled by the application when writing your handlers (such as image, iframe, ...)
 - customItemsProvider is an array of custom content type handlers (js objects with specific fields)
 - each content type handler is an object with the following properties:
-    - (required) **contentType** - the name of your custom content type, the lightbox will throw an exception when it encounters an element that is not handled by the default providers or through one of your providers
+    - (required) **contentType** - the name of your custom content type, the lightbox will throw an exception when it encounters the content type of a gallery item that is not handled by the default providers or through one of your providers
     - (optional) **onItemMount** - called when the user opens a gallery item with this content type (either through opening the gallery at this item or through switching to an item of this content type from another item), useful for mounting your own components into the lightbox by querying for the **rt-gallery-item** div which is created by the lightbox before onItemMount is called
-    - (optional) **onItemUnmount** - called after the user exists the gallery or moves onto another item - useful for other logic that should be done after unmounting (note the component created by createRoot is removed automatically)
+    - (optional) **onItemUnmount** - called after the user exists the gallery or moves onto another item - useful for other logic that should be done after unmounting (note the component created by createRoot is removed automatically from the DOM)
 - 
 
 example of mounting custom component onto the data-rt-content-type="360-renderer":
 ```js
 customItemsProvider: [
     {
+        // our custom content type
         contentType: "360-renderer",
+        // mounting method called when the user gets to a gallery
+        // item of this content type
         onItemMount: (index, item) => {
             console.log("360 mount", index, item);
             // mount our component
             mount3dComponent();
         },
+        // cleanup method
         onItemUnmount: (index, item) => {
             console.log("360 unmount", index, item);
             // no need for additional logic here
@@ -101,9 +105,11 @@ customItemsProvider: [
     }
 ]
 
-// Our custom mount function (react is used in this example)
+// Our custom mount function (React is used in this example)
 const mount3dComponent = () => {
-    // mount onto the create entry-point element
+    // mount onto the element that was created by the lightbox
+    // the element looks something like:
+    // <div id="rt-gallery-item"></div>
     const mountPoint = document.getElementById("rt-gallery-item");
     const root = createRoot(mountPoint);
     root.render(<CustomContainer />);
@@ -123,34 +129,37 @@ const mount3dComponent = () => {
     - (or your custom content types provided they are handled)
 - implicitly set to image when no value is explicitly specified
 - you can specify a custom content type with any value as long as you provide a custom handler for your new content type by passing a **customItemsProvider** object to the **RTJS_lightbox** function
+- the lightbox will throw an error when it encounters an element with an unsupported content type (one that is not handled by the application or your own custom handlers)
 
-To set this value through the DOM use
+- To set this value through the DOM use
 **data-rt-content-type** attribute on the \<a> element representing the gallery item
 
 #### title
-- the title of the gallery item to be shown in the ligthbox gallery
+- the title of the gallery item
 - DOM: **data-rt-lightbox-title** on the element representing the gallery item
 #### description
-- the description of the gallery item to be shown in the gallery
+- the description of the gallery item to be shown under the title in the gallery
 - DOM: **data-rt-lightbox-description** on the element representing the gallery item
-#### smallSrc (data-rt-lightbox-thumbnail-src || the src tag on an \<img> under the main \<a> element)
+#### smallSrc
 - path to the small thumbnail image (if there is any) in the gallery lightbox display
 - if you are using an iframe with youtube videos, then you *do not need* to specify the thumbnail as it will be taken directly from the yt thumbnail URL at maximum quality (specifying the thumbnail src for custom images is fine as well)
-- 
+- To set this value through the DOM either specify **data-rt-lightbox-thumbnail-src** or provide an \<img> element with a src tag under the main \<a> element
+- If both **data-rt-lightbox-thumbnail-src** is specified and there is an \<img> element with a src attribute under the main \<a> tag, then **data-rt-lightbox-thumbnail-src** takes precedence, this is done even if the attribute is set to an empty string "" - in that case either the placeholder will be used or possibly the default placeholder value (such as an automatically fetched thumbnail for iframe youtube videos)
 ---
 
 ### Data specific to various content types
 #### image
-##### bigSrc (**href** || **data-rt-lightbox-src**)
+##### bigSrc
 - path to the image shown in the opened gallery lightbox display
+- To set this value through the DOM either use the **href** attribute or the **data-rt-lightbox-src** attribute on the main \<a> element
 
 #### iframe
-##### sourceUrl (href || data-rt-source-url)
+##### sourceUrl
 - path to the iframe source (for youtube videos use www.youtube.com/embed/VIDEO_ID)
-- To set this value through the dom use **data-rt-source-url** on the \<a> element representing the gallery item
-##### iframeWidth (data-rt-iframe-width)
+- To set this value through the dom use **data-rt-source-url** on the \<a> element representing the gallery item (or use **href**)
+##### iframeWidth
 - The width of the iframe as it appears in the viewport, any normal css unit value is allowed but it's highly encouraged to use vw responsive values; if no value is set the default will be used
-    - To set hits value through the dom use **data-rt-iframe-width** on the \<a> element representing the gallery item
+- To set this value through the dom use **data-rt-iframe-width** on the \<a> element representing the gallery item
 
 
 #### iframe example (video with a title and a description with a youtube fetched thumbnail)
@@ -166,10 +175,10 @@ To set this value through the DOM use
     == WORKING VID ==
 </a>
 ```
-![Alt text](./documentation/images/image-1.png)
+![iframe example result](./documentation/images/image-1.png)
 
 
-### iframe example - same video but with a custom thumbnail (only the thumbnail has changed with the previous example)
+### iframe example - same video but with a custom thumbnail (only the thumbnail in the bottom bar has changed with the previous example)
 ```js
 const FOOD_TABLE = require("./../images/food-table.webp").default;
 
@@ -188,11 +197,11 @@ const FOOD_TABLE = require("./../images/food-table.webp").default;
 </a>
 ```
 
-![Alt text](./documentation/images/image-2.png)
+![iframe thumbnail example result](./documentation/images/image-2.png)
 
 
 
-### custom content type - react + gatsby - full example - 3D rotation viewer
+### custom content type example - using React + Gatsby - 3D rotation viewer
 ```js
 
 // gallery element
@@ -207,12 +216,15 @@ const FOOD_TABLE = require("./../images/food-table.webp").default;
 </a>
 
 // start of our react component
+// state variables used for managing gatsby script dependencies
 const [loaded1, setLoaded1] = useState(false);
 const [loaded2, setLoaded2] = useState(false);
 
+// mounting function
 const mount3dComponent = () => {
     const mountPoint = document.getElementById("rt-gallery-item");
     const root = createRoot(mountPoint);
+    // mount or custom react component onto the gallery item (rt-gallery-item)
     root.render(<CustomContainer />);
 }
 
@@ -235,7 +247,7 @@ RTJS_lightbox(".lightbox", {
 })
 
 // ...
-
+// dependent scripts
 <Script src="http://localhost:8000/skin.js" onLoad={() => setLoaded1(true)} />
 {loaded1 && <Script src="http://localhost:8000/object2vr_player.js" onLoad={() => setLoaded2(true)} />}
 {loaded2 && <Script id="3" dangerouslySetInnerHTML={{__html: `
@@ -243,7 +255,10 @@ RTJS_lightbox(".lightbox", {
 function hideUrlBar() {
 }
 
+
 console.log("adding event listener...");
+
+// Called inside <CustomContainer />
 document.addEventListener("rtjs:load", function() {
     console.log("rtjs is loading...");
     // create the object player with the container
@@ -267,6 +282,7 @@ const CustomContainer = () => {
 
     const isSmaller = useMediaQuery('(max-width: 900px)');
     useEffect(() => {
+        // dispatching the event to load the library
         console.log("dispatching event...");
         document.dispatchEvent(new CustomEvent('rtjs:load'));
     }, []);
@@ -282,7 +298,7 @@ const CustomContainer = () => {
       This content requires HTML5 &amp; Javascript or Adobe Flash Player Version 9 or higher.
       </div>
 
-    )
+    );
 }
 
 export default CustomContainer;
@@ -290,3 +306,6 @@ export default CustomContainer;
 
 
 ```
+
+Result
+![custom content type example result](./documentation/images/image-3.png)
