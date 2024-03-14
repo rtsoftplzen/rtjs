@@ -175,6 +175,12 @@ const RTJS_lightbox = (selector, options = {}) => {
         }
 
         const setItemByIndex = (index) => {
+            if(index === selectedItem)
+            {
+                return;
+            }
+
+
             setItemLoadState(LOAD_STATES.PENDING);
             setForcedLoading(true);
 

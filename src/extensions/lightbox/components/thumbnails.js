@@ -14,7 +14,6 @@ const Thumbnails = ({showThumbnails, galleryItems, isItemLoaded, selectedItem, o
     useEffect(() => {
         if(!showThumbnails || !wrapper.current) return
         const handleScroll = (event) => {
-            console.log(event)
             scrollPosition.current = event.target.scrollLeft
         }
         wrapper.current.addEventListener('scroll', handleScroll)

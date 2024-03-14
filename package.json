@@ -5,7 +5,7 @@
     "license": "MIT",
     "main": "./lib/RTJS.js",
     "repository": "rtsoftplzen/rtjs",
-    "sideEffects": false,
+    "sideEffects": ["./src/extensions/lightbox/content-types.js"],
     "dependencies": {
         "throttle-debounce": "^2.2.1"
     },
