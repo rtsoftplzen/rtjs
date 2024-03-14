@@ -18,7 +18,15 @@ export const extractIframeDataFromElement = (galleryElement) => {
 
     const iframeWidth = galleryElement.dataset.rtIframeWidth;
 
-    return { sourceUrl, iframeWidth };
+    // default values are handled in the iframe itself
+    const allowFullscreen = galleryElement.dataset.rtAllowFullscreen !== undefined
+      ? galleryElement.dataset.rtAllowFullscreen === "true"
+      : undefined;
+
+    const allow = galleryElement.dataset.rtIframeAllow;
+    const frameborder = galleryElement.dataset.rtIframeFrameborder;
+
+    return { sourceUrl, iframeWidth, allowFullscreen, allow, frameborder };
 };
 
 export const extractImageDataFromElement = (galleryElement) => {

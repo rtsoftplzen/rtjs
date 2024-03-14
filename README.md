@@ -161,6 +161,18 @@ const mount3dComponent = () => {
 - The width of the iframe as it appears in the viewport, any normal css unit value is allowed but it's highly encouraged to use vw responsive values; if no value is set the default will be used
 - To set this value through the dom use **data-rt-iframe-width** on the \<a> element representing the gallery item
 
+##### allowFullscreen
+- defaults to true
+- takes a boolean value
+- DOM: **data-rt-allow-fullscreen** - takes "true" or "false" in the DOM
+##### allow
+- used for applying allow="..." to the iframe
+- defaults to "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+- DOM: **data-rt-iframe-allow**
+##### frameborder
+- used for applying frameborder="..." to the iframe
+- defaults to 0 when not provided
+- DOM: **data-rt-iframe-frameborder**
 
 #### iframe example (video with a title and a description with a youtube fetched thumbnail)
 ```js

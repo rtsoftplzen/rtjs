@@ -59,6 +59,9 @@ export const CONTENT_TYPES_TO_COMPONENTS = Object.freeze({
     <GalleryIframe
       iframeSrc={values.galleryItem.sourceUrl}
       iframeWidth={values.galleryItem.iframeWidth}
+      allow={values.galleryItem.allow}
+      allowFullscreen={values.galleryItem.allowFullscreen}
+      frameborder={values.galleryItem.frameborder}
       onLoad={values.onLoad}
       onError={values.onError}
     />
