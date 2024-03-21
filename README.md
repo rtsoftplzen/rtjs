@@ -117,6 +117,9 @@ const mount3dComponent = () => {
 
 ```
 
+### onItemMount: (index, item) => void
+- item contains all the original mapped fields of the lightbox element alongside a special field called dataset that contains all the original dataset data coming from the elements
+- this is useful for adding your custom dataset fields and accessing them within the mount component
 
 
 ## Gallery data structure

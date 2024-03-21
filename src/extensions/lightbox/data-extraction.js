@@ -8,7 +8,11 @@ export const extractCommonDataFromElement = (galleryElement) => {
 
     const smallSrc = getSmallSrc(galleryElement);
 
-    return { title, smallSrc, description };
+    // The dataset is to be used within custom components so that they
+    // have unrestricted access to the underlying data
+    // normally, the dataset is not used and the data is extracted into
+    // specific fields so that it can be directly provided through props
+    return { title, smallSrc, description, dataset };
 };
 
 export const extractIframeDataFromElement = (galleryElement) => {
