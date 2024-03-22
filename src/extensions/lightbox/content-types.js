@@ -47,18 +47,18 @@ export const getContentTypeFromElement = (element) => {
 }
 
 export const CONTENT_TYPES_TO_COMPONENTS = Object.freeze({
-  [CONTENT_TYPES.IMAGE]: (values) => (
-    <GalleryImage
+  [CONTENT_TYPES.IMAGE]: (values) => {
+    return (<GalleryImage
       src={values.src}
       onLoad={values.onLoad}
       onError={values.onError}
       swipeHandlerProps={values.swipeHandlerProps}
-    />
-  ),
+      infoText={values.galleryItem.lightboxInfo}
+    />);
+  },
   [CONTENT_TYPES.IFRAME]: (values) => (
     <GalleryIframe
       iframeSrc={values.galleryItem.sourceUrl}
-      iframeWidth={values.galleryItem.iframeWidth}
       allow={values.galleryItem.allow}
       allowFullscreen={values.galleryItem.allowFullscreen}
       frameborder={values.galleryItem.frameborder}
