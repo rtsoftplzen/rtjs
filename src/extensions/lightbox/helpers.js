@@ -52,3 +52,15 @@ export const prepareGalleryItemsData = (options, element) => {
 
     
 }
+
+/**
+ * Removes all non digit characters from a string and returns the result as an integer.
+ */
+export const extractDigitsFromString = (str) => {
+    if(str === null || str === undefined)
+    {
+        return null;
+    }
+    
+    return parseInt(str.replace(/\D/g, ''))
+}
