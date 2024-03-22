@@ -83,6 +83,32 @@ RTJS_lightbox('#data-lightbox', {
     - (optional) **onItemUnmount** - called after the user exists the gallery or moves onto another item - useful for other logic that should be done after unmounting (note the component created by createRoot is removed automatically from the DOM)
 - 
 
+### showCloser
+- true/false/null/undefined (default: undefined)
+- if set to anything other than null or undefined, overrides the default closer showing behaviour where the closer will be shown only if the closer has text to show (either the closer symbol is shown or there is a label) and the item is loaded
+
+### showCloserXSymbol
+- true/false (default: true)
+- determines, whether to show the X symbol left of the label
+
+### thumbnailsPlacement
+- values (string): bottom, right
+- determines the placement of the thumbnails strip
+- you can also pass an array to change the value based on breakpoints
+
+### titleShowItemCounter
+- values: true/false (default: true)
+- determines whether the item counter should be shown
+- if true, the item counter will be shown if there is more than one item in the gallery
+
+### arrowsPosition
+- values "sides", "hug-image" (default: "sides")
+- determines the position of the arrows that switch between items
+
+### usingCustomArrows
+- values: true/false (default: false)
+- set this variable to true when you are using your own custom images for the next/previous arrows to remove the default ">"/"<" text
+
 example of mounting custom component onto the data-rt-content-type="360-renderer":
 ```js
 customItemsProvider: [
@@ -155,14 +181,14 @@ const mount3dComponent = () => {
 ##### bigSrc
 - path to the image shown in the opened gallery lightbox display
 - To set this value through the DOM either use the **href** attribute or the **data-rt-lightbox-src** attribute on the main \<a> element
+##### lightboxInfo
+- if provided, a small button will be shown in the image in the bottom left corner that when clicked on, will display this text
+- it is also possible to provide this value through the DOM with **data-rt-lightbox-info** on the main element or through providing a element with the class **rt-lightbox-info-content** under the main element whose innerHTML will be the content displayed within the info box - be aware that the element will be hidden by default so you don't need to hide the content element yourself
 
 #### iframe
 ##### sourceUrl
 - path to the iframe source (for youtube videos use www.youtube.com/embed/VIDEO_ID)
 - To set this value through the dom use **data-rt-source-url** on the \<a> element representing the gallery item (or use **href**)
-##### iframeWidth
-- The width of the iframe as it appears in the viewport, any normal css unit value is allowed but it's highly encouraged to use vw responsive values; if no value is set the default will be used
-- To set this value through the dom use **data-rt-iframe-width** on the \<a> element representing the gallery item
 
 ##### allowFullscreen
 - defaults to true

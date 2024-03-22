@@ -20,8 +20,6 @@ export const extractIframeDataFromElement = (galleryElement) => {
     const sourceUrl =
         galleryElement.getAttribute("href") || dataset.rtSourceUrl;
 
-    const iframeWidth = galleryElement.dataset.rtIframeWidth;
-
     // default values are handled in the iframe itself
     const allowFullscreen = galleryElement.dataset.rtAllowFullscreen !== undefined
       ? galleryElement.dataset.rtAllowFullscreen === "true"
@@ -30,7 +28,7 @@ export const extractIframeDataFromElement = (galleryElement) => {
     const allow = galleryElement.dataset.rtIframeAllow;
     const frameborder = galleryElement.dataset.rtIframeFrameborder;
 
-    return { sourceUrl, iframeWidth, allowFullscreen, allow, frameborder };
+    return { sourceUrl, allowFullscreen, allow, frameborder };
 };
 
 export const extractImageDataFromElement = (galleryElement) => {
@@ -38,7 +36,10 @@ export const extractImageDataFromElement = (galleryElement) => {
 
     const bigSrc = galleryElement.getAttribute("href") || dataset.rtLightboxSrc;
 
-    return { bigSrc };
+    const infoElement = galleryElement.querySelector(".rt-lightbox-info-content");
+    const lightboxInfo = infoElement?.innerHTML || galleryElement.dataset.rtLightboxInfo;
+    
+    return { bigSrc, lightboxInfo };
 };
 
 export const tryGetSmallSrcFromImage = (galleryElement) => {

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 import { debounce } from 'throttle-debounce'
 import { defaultOptions } from './options'
 import { handlePageOverflow, prepareGalleryItemsData } from './helpers'
-import Arrows from './components/arrows'
 import Closer from './components/closer'
 import Spinner from './components/spinner'
 import Title from './components/title'
@@ -193,7 +192,7 @@ const RTJS_lightbox = (selector, options = {}) => {
         
         const hasMultipleGalleryItems = galleryItems ? galleryItems.length > 1 : undefined
         
-        const showTitleOnTop = finalOptions.showTitle === 'top';
+        const showTitleOnTop = finalOptions.titlePlacement === 'top';
 
         if(finalOptions.debug){
             console.log({selectedItem, galleryItems})
@@ -213,13 +212,16 @@ const RTJS_lightbox = (selector, options = {}) => {
                 selectedItem={selectedItem} 
                 sum={galleryItems.length}
                 description={galleryItem && galleryItem.description}
+                showItemCounter={finalOptions.titleShowItemCounter}
             />
         );
 
         const closerJSX = (
             <Closer 
                 key={`closer-${selectedItem}`} 
-                showCloser={galleryItem && finalOptions.closeLabel} 
+                showCloser={finalOptions.showCloser}
+                showCloserXSymbol={finalOptions.showCloserXSymbol}
+                galleryItem={galleryItem}
                 isItemLoaded={isLoadingDone} 
                 label={finalOptions.closeLabel}
             />
@@ -240,12 +242,11 @@ const RTJS_lightbox = (selector, options = {}) => {
         const showSpinner = !isLoadingDone || forcedLoading;
         
         const galleryItemKey = `gallery-item-${selectedItem}`;
+        
+        const showArrowsValue = finalOptions.showArrows && hasMultipleGalleryItems && galleryItem;
+        const isItemLoadedSubelements = isLoadingDone && !forcedLoading;
 
         return <div className={`rt-lightbox${swiping ? ' rt-lightbox--swiping' : ''}`} onClick={handleLightboxClick}>
-            {showTitleOnTop
-                ? titleJSX
-                : closerJSX
-            }
             <Spinner 
                 showSpinner={showSpinner} 
             />
@@ -312,26 +313,26 @@ const RTJS_lightbox = (selector, options = {}) => {
                         }
                     }
                 }}
+                // props for arrows
+                moveNext={moveNext}
+                movePrev={movePrev}
+                showArrows={showArrowsValue}
+                arrowsPosition={finalOptions.arrowsPosition}
+                usingCustomArrows={finalOptions.usingCustomArrows}
+                showTitleOnTop={showTitleOnTop}
+
+                titleJSX={titleJSX}
+                closerJSX={closerJSX}
             />
             <Thumbnails 
                 onClick={(index) => setItemByIndex(index)} 
                 selectedItem={selectedItem} 
                 showThumbnails={finalOptions.showThumbnails && galleryItem && hasMultipleGalleryItems} 
-                isItemLoaded={isLoadingDone && !forcedLoading} 
+                isItemLoaded={isItemLoadedSubelements} 
                 galleryItems={galleryItems}
                 placeholderSrc={finalOptions.placeholderSrc}
                 withoutBorder={finalOptions.withoutBorder}
-            />
-            {showTitleOnTop
-                ? closerJSX
-                : titleJSX
-            }
-            <Arrows 
-                key={`arrows-${selectedItem}`} 
-                showArrows={finalOptions.showArrows && hasMultipleGalleryItems && galleryItem} 
-                isItemLoaded={isLoadingDone && !forcedLoading} 
-                moveNext={moveNext} 
-                movePrev={movePrev} 
+                thumbnailsPlacement={finalOptions.thumbnailsPlacement}
             />
         </div>
 

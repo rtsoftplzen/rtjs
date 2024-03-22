@@ -36,19 +36,26 @@ export const prepareGalleryItemsData = (options, element) => {
 
     // data will need to be extracted from the DOM
     const galleryElements = getAllElementsToPrepare(element);
+    const galleryElementsArray = Array.from(galleryElements);
 
-    let selectedItem = 0;
-    const newGalleryItems = []
-
-    galleryElements.forEach((item, index) => {
-        if (item === element){
-            selectedItem = index
-        }
-        
+    const newGalleryItems = galleryElementsArray.map((item) => {
         const fullData = extractFullDataFromElement(item, options.customItemsProvider);
-        newGalleryItems.push(fullData);
+        return fullData;
     })
-    return {items: newGalleryItems, selectedItem}
 
+    const selectedItem = galleryElementsArray.findIndex(item => item === element);
+
+    return {items: newGalleryItems, selectedItem};
+}
+
+/**
+ * Removes all non digit characters from a string and returns the result as an integer.
+ */
+export const extractDigitsFromString = (str) => {
+    if(str === null || str === undefined)
+    {
+        return null;
+    }
     
+    return parseInt(str.replace(/\D/g, ''))
 }
